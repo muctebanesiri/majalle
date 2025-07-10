@@ -17,7 +17,7 @@
 
 ## تماس با من
 
-برای هرگونه سوال یا پیشنهاد، می‌توانید با من از طریق ایمیل [muctebanesiri@gmail.com](mailto:muctebanesiri@gmail.com) تماس بگیرید. 📧
+برای هرگونه سوال یا پیشنهاد، می‌توانید با من از طریق [ایمیل](mailto:muctebanesiri@gmail.com) تماس بگیرید. 📧
 
 ## مجوز
 
