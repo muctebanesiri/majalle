@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "src/قانون مدنی.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "قانون مدنی"
             }
           }
         ]
@@ -170,8 +170,8 @@
   },
   "active": "1f96f9a8c444cbc7",
   "lastOpenFiles": [
-    "src/قانون مدنی.md",
     "src/قانون خدمت وظیفه عمومی.md",
+    "src/قانون مدنی.md",
     "README.md"
   ]
 }
