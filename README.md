@@ -22,3 +22,6 @@ For any questions or suggestions, you can reach me via [email](mailto:muctebanes
 ## License
 
 I have not selected a suitable license yet. 📜
+
+## Persian Version
+For the Persian version of this README, please see [README.fa.md](README.fa.md).
