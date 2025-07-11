@@ -1,24 +1,24 @@
-# 📜 ریپازیتوری قانون
+ 📜 CodeHub
 
-هدف این پروژه ارائه متن کامل، دقیق و تا حد امکان تنقیح شده قوانینه. این ریپازیتوری به منظور تسهیل دسترسی به نص قوانین برای عموم (از جمله خودم) ایجاد شده.
+The purpose of this project is to provide the most complete and accurate text of the laws to facilitate public access to the Iranian legal texts for everyone (including myself).
 
-## ویژگی‌ها
+## Features
 
-- **متن کامل قوانین**: شامل تمامی قوانین و مقررات کشور. 📚
-- **حرکه گذاری**: برای تسهیل در خواندن و فهم بهتر متن قوانین  حرکه گذاری صحیح شده. ✍️
-- **فاقد اشتباه تایپی**: تمامی متون با دقت بررسی شده‌اند تا از وجود هرگونه اشتباه تایپی جلوگیری بشه. ✅
-- **فرمت‌های مختلف برای سهولت استفاده**: 📁
+- **Complete Text of Laws**: Includes all legal codes and regulations of the country. 📚
+- **Vowel Marking**: Proper vowel marking has been applied to facilitate reading and better understanding. ✍️
+- **Free of Typos**: All texts have been carefully reviewed to prevent any typographical errors. ✅
+- **Available in Various Formats**: such as .md and .epub 📁
 
-## نحوه استفاده
+## How to Use
 
-1. متن قوانین به صورت فایل‌های Markdown و همچنین فایل EPUB در بخش Releases موجوده. 📥
-2. **گزارش خطا**: اگر خطایی در متن‌ها مشاهده کردید، لطفاً آن را در بخش Issues گزارش بدین تا به سرعت اصلاح بشه یا زحمت اصلاح خودتون بکشین و PR کنین. 🐞
-3. **مشارکت**: اگر شما هم مایل به افزودن قوانین جدید یا اصلاح متن‌های موجود هستید، خوشحال می‌شم که مشارکت کنین. لطفاً دستورالعمل‌های مشارکت را در فایل CONTRIBUTING.md مطالعه کنین. 🤝
+1. The text of the laws is available as Markdown and EPUB files in the Releases section. 📥
+2. **Report Errors**: If you notice any errors in the texts, please report them in the Issues section so they can be quickly corrected, or feel free to make the corrections yourself and submit a PR. 🐞
+3. **Contribute**: If you would like to add new laws or revise existing texts, I would be happy to have your contributions. Please read the contribution guidelines in the CONTRIBUTING.md file. 🤝
 
-## تماس با من
+## Contact Me
 
-برای هرگونه سوال یا پیشنهاد، می‌توانید با من از طریق [ایمیل](mailto:muctebanesiri@gmail.com) در ارنباط باشین. 📧
+For any questions or suggestions, you can reach me via [email](mailto:muctebanesiri@gmail.com). 📧
 
-## مجوز
+## License
 
-فعلا مجوز مناسبی انتخاب نکردم. 📜
+I have not selected a suitable license yet. 📜
