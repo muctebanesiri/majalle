@@ -1,4 +1,4 @@
- ⚖️ CodeHub
+# ⚖️ CodeHub
 
 The purpose of this project is to provide the most complete and accurate text of the laws to facilitate public access to the Iranian legal texts for everyone (including myself).
 
