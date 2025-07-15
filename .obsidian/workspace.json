@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "src/قانون مدنی.md",
+                "file": "README.ota.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
-              "title": "قانون مدنی"
+              "title": "README.ota"
             }
           }
         ],
@@ -185,17 +185,17 @@
   },
   "active": "e73303abde7e3075",
   "lastOpenFiles": [
-    "src/قانون خدمت وظیفه عمومی.md",
+    "README.fa.md",
+    "README.ota.md",
+    "src/قانون اساسی متمم مشروطیت.md",
     "src/قانون مدنی.md",
+    "src/قانون خدمت وظیفه عمومی.md",
     "src/مجله احکام عدلیه.md",
     "README.tr.md",
-    "README.ota.md",
-    "README.fa.md",
     "output.html",
     "README.md",
     "src/README.fa.md",
     "قانون مدنی.epub",
-    "قانون مدنی(2).epub",
-    "src/قانون اساسی مشروطیت.md"
+    "قانون مدنی(2).epub"
   ]
 }
