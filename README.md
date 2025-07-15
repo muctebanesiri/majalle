@@ -15,7 +15,7 @@ This is a personal project to gather the most complete and accurate text of the 
 
 ## How to Use
 
-The codes are available as Markdown and EPUB files for download in the Releases section. 
+The codes (in legal context) are available as Markdown and EPUB files for download in the Releases section. 
 
 ## Contribution
 
