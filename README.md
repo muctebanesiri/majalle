@@ -2,7 +2,7 @@
 
 This is a personal project to gather the most complete and accurate text of the laws for potential use cases in the future. Everyone is more than welcome to use or contribute.
 
-[فارسی](README.fa.md) | [عثمانلیجه](README.ota.md) | [turkce](README.tr.md)
+[فارسی](README.fa.md) | [عثمانلیجه](README.ota.md) | [Türkçe](README.tr.md)
 ## Features
 
 - **Complete Text of Laws**: Includes a variety of legal codes and regulations included but not limited to:
