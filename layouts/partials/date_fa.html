@@ -1,0 +1,7 @@
+{{ $months := slice "فروردین" "اردیبهشت" "خرداد" "تیر" "مرداد" "شهریور" "مهر" "آبان" "آذر" "دی" "بهمن" "اسفند" }}
+{{ $date := .Date }}
+{{ $day := $date.Day }}
+{{ $month := index $months (sub (int $date.Month) 1) }}
+{{ $year := $date.Year }}
+
+<time>{{ $day }} {{ $month }} {{ $year }}</time>

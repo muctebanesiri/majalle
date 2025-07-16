@@ -1,0 +1,19 @@
+:root {
+  --nav-direction: rtl;
+  --body-direction: rtl;
+  --float-direction: right;
+}
+
+body {
+  direction: rtl;
+  text-align: right;
+}
+
+.post-meta {
+  justify-content: flex-end;
+}
+
+.toc {
+  right: unset;
+  left: 0;
+}

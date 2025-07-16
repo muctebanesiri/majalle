@@ -1,0 +1,11 @@
+{{- if .Site.Params.social }}
+<div class="social-icons">
+  {{- range .Site.Params.social }}
+  <a class="social-icons__link" title="{{ .name }}" 
+     href="{{ .url }}" target="_blank" rel="noopener">
+    <div class="social-icons__icon" 
+         style="background-image: url('{{ print "icons/" .name ".svg" | absURL }}')"></div>
+  </a>
+  {{- end }}
+</div>
+{{- end }}
