@@ -1,8 +1,8 @@
 ---
-title: "جستجو" # in any language you want
+title: "Search" # in any language you want
 layout: "search" # necessary for search
 # url: "/archive"
 # description: "Description for Search"
-summary: "جستجو"
-placeholder: "جستجو در متن قوانین"
+summary: "search"
+placeholder: "placeholder text in search input box"
 ---
