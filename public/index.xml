@@ -2,51 +2,51 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>کدهاب</title>
-    <link>http://localhost:1313/</link>
+    <link>https://code-hub-8zmr.vercel.app//</link>
     <description>Recent content on کدهاب</description>
     <image>
       <title>کدهاب</title>
-      <url>http://localhost:1313/images/papermod-cover.png</url>
-      <link>http://localhost:1313/images/papermod-cover.png</link>
+      <url>https://code-hub-8zmr.vercel.app//images/papermod-cover.png</url>
+      <link>https://code-hub-8zmr.vercel.app//images/papermod-cover.png</link>
     </image>
     <generator>Hugo -- 0.148.1</generator>
     <language>fa</language>
     <copyright>کدهاب</copyright>
     <lastBuildDate>Sun, 20 Nov 2022 09:03:20 -0800</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://code-hub-8zmr.vercel.app//index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Install / Update PaperMod</title>
-      <link>http://localhost:1313/posts/papermod/papermod-installation/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/papermod/papermod-installation/</link>
       <pubDate>Wed, 20 Jan 2021 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/papermod/papermod-installation/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/papermod/papermod-installation/</guid>
       <description>Read aboout Install and Update instructions and sampled configuration templates</description>
     </item>
     <item>
       <title>Features / Mods</title>
-      <link>http://localhost:1313/posts/papermod/papermod-features/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/papermod/papermod-features/</link>
       <pubDate>Wed, 20 Jan 2021 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/papermod/papermod-features/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/papermod/papermod-features/</guid>
       <description>Learn About All Features in PaperMod</description>
     </item>
     <item>
       <title>Markdown Syntax Guide For L2</title>
-      <link>http://localhost:1313/posts/markdown-syntax.fr/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/markdown-syntax.fr/</link>
       <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/markdown-syntax.fr/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/markdown-syntax.fr/</guid>
       <description>Sample article showcasing basic Markdown syntax and formatting for HTML elements.</description>
     </item>
     <item>
       <title>Markdown Syntax Guide For RTL</title>
-      <link>http://localhost:1313/posts/markdown-syntax/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/markdown-syntax/</link>
       <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/markdown-syntax/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/markdown-syntax/</guid>
       <description>Sample article showcasing basic Markdown syntax and formatting for HTML elements.</description>
     </item>
     <item>
       <title>یک پست معمولی</title>
-      <link>http://localhost:1313/posts/adsd/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/adsd/</link>
       <pubDate>Sun, 20 Nov 2022 09:03:20 -0800</pubDate>
-      <guid>http://localhost:1313/posts/adsd/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/adsd/</guid>
       <description>&lt;p&gt;شسیشس
 شسی
 شسی&lt;/p&gt;
@@ -55,37 +55,37 @@
     </item>
     <item>
       <title>Code Syntax Guide</title>
-      <link>http://localhost:1313/posts/code_syntax/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/code_syntax/</link>
       <pubDate>Sun, 10 Mar 2019 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/code_syntax/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/code_syntax/</guid>
       <description>Sample article showcasing basic code syntax and formatting for HTML elements.</description>
     </item>
     <item>
       <title>Rich Content and Shortcodes</title>
-      <link>http://localhost:1313/posts/rich-content/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/rich-content/</link>
       <pubDate>Sun, 10 Mar 2019 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/rich-content/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/rich-content/</guid>
       <description>A brief description of Hugo Shortcodes</description>
     </item>
     <item>
       <title>Math Typesetting</title>
-      <link>http://localhost:1313/posts/math-typesetting/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/math-typesetting/</link>
       <pubDate>Fri, 08 Mar 2019 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/math-typesetting/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/math-typesetting/</guid>
       <description>A brief guide to setup KaTeX</description>
     </item>
     <item>
       <title>Emoji Support</title>
-      <link>http://localhost:1313/posts/emoji-support/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/emoji-support/</link>
       <pubDate>Tue, 05 Mar 2019 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/emoji-support/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/emoji-support/</guid>
       <description>Guide to emoji usage in Hugo</description>
     </item>
     <item>
       <title></title>
-      <link>http://localhost:1313/posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D9%85%D8%AF%D9%86%DB%8C/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D9%85%D8%AF%D9%86%DB%8C/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D9%85%D8%AF%D9%86%DB%8C/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D9%85%D8%AF%D9%86%DB%8C/</guid>
       <description>&lt;h2 id=&#34;مقدمه&#34;&gt;مقدمه&lt;/h2&gt;
 &lt;h3 id=&#34;در-انتشار-و-آثار-و-اجراء-قوانین-بطور-عموم&#34;&gt;در انتشار و آثار و اجراء قوانین بطور عموم&lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;ماده ۱ (اصلاحی ۱۳۷۰/۰۸/۱۴) -&lt;/strong&gt; مصوبات مجلس شورای اسلامی و نتیجه همه پرسی پس از طی مراحل قانونی به رئیس جمهور ابلاغ میشود. رئیس جمهور باید ظرف مدت پنج روز آن را امضاء و به مجریان ابلاغ نماید و دستور انتشار آن را صادر کند و روزنامه رسمی موظف است ظرف مدت ۷۲ ساعت پس از ابلاغ منتشر نماید.&lt;/p&gt;
@@ -93,16 +93,16 @@
     </item>
     <item>
       <title></title>
-      <link>http://localhost:1313/trmplates/template/</link>
+      <link>https://code-hub-8zmr.vercel.app//trmplates/template/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/trmplates/template/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//trmplates/template/</guid>
       <description></description>
     </item>
     <item>
       <title>قانون اساسی متمم مشروطیت</title>
-      <link>http://localhost:1313/posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%A7%D8%B3%D8%A7%D8%B3%DB%8C-%D9%85%D8%AA%D9%85%D9%85-%D9%85%D8%B4%D8%B1%D9%88%D8%B7%DB%8C%D8%AA/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%A7%D8%B3%D8%A7%D8%B3%DB%8C-%D9%85%D8%AA%D9%85%D9%85-%D9%85%D8%B4%D8%B1%D9%88%D8%B7%DB%8C%D8%AA/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%A7%D8%B3%D8%A7%D8%B3%DB%8C-%D9%85%D8%AA%D9%85%D9%85-%D9%85%D8%B4%D8%B1%D9%88%D8%B7%DB%8C%D8%AA/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%A7%D8%B3%D8%A7%D8%B3%DB%8C-%D9%85%D8%AA%D9%85%D9%85-%D9%85%D8%B4%D8%B1%D9%88%D8%B7%DB%8C%D8%AA/</guid>
       <description>&lt;p&gt;بسمه‌ تعالی&lt;/p&gt;
 &lt;p&gt;متن منقّح قانون اساسی مصوّب ۱۳۲۴ قمری موسوم به قانون اساسی مشروطیت [ایران] و متمّم آن مصوّب ۱۳۲۵ قمری موسوم به متمّم قانون اساسی [ایران]&lt;/p&gt;
 &lt;p&gt;ویراست 1.0.1- ۴ مرداد ۱۴۰۱&lt;/p&gt;
@@ -112,18 +112,18 @@
     </item>
     <item>
       <title>قانون خدمت وظیفه عمومی</title>
-      <link>http://localhost:1313/posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%AE%D8%AF%D9%85%D8%AA-%D9%88%D8%B8%DB%8C%D9%81%D9%87-%D8%B9%D9%85%D9%88%D9%85%DB%8C/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%AE%D8%AF%D9%85%D8%AA-%D9%88%D8%B8%DB%8C%D9%81%D9%87-%D8%B9%D9%85%D9%88%D9%85%DB%8C/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%AE%D8%AF%D9%85%D8%AA-%D9%88%D8%B8%DB%8C%D9%81%D9%87-%D8%B9%D9%85%D9%88%D9%85%DB%8C/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%AE%D8%AF%D9%85%D8%AA-%D9%88%D8%B8%DB%8C%D9%81%D9%87-%D8%B9%D9%85%D9%88%D9%85%DB%8C/</guid>
       <description>&lt;p&gt;مصوب ۱۳۶۳/۰۷/۲۹ با اصلاحات تا تاریخ ۱۳۹۶/۵/۱۷&lt;/p&gt;
 &lt;h3 id=&#34;فصل-اول-کلیات&#34;&gt;فصل اول: کلیات&lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;ماده ۱-&lt;/strong&gt; دفاع از استقلال و تمامیت ارضی و نظام جمهوری اسلامی ایران و جان و مال و ناموس مردم وظیفه دینی و ملی هر فرد ایرانی است و دراجرای این وظیفه کلیه اتباع ذکور دولت جمهوری اسلامی ایران مکلف به انجام خدمت وظیفه عمومی برابر مقررات این قانون میباشند و هیچ فردمشمول خدمت وظیفه عمومی را جز در موارد مصرحه در این قانون نمیتوان از خدمت معاف کرد.&lt;/p&gt;</description>
     </item>
     <item>
       <title>مجله احکام عدلیه</title>
-      <link>http://localhost:1313/posts/%D9%85%D8%AC%D9%84%D9%87-%D8%A7%D8%AD%DA%A9%D8%A7%D9%85-%D8%B9%D8%AF%D9%84%DB%8C%D9%87/</link>
+      <link>https://code-hub-8zmr.vercel.app//posts/%D9%85%D8%AC%D9%84%D9%87-%D8%A7%D8%AD%DA%A9%D8%A7%D9%85-%D8%B9%D8%AF%D9%84%DB%8C%D9%87/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/%D9%85%D8%AC%D9%84%D9%87-%D8%A7%D8%AD%DA%A9%D8%A7%D9%85-%D8%B9%D8%AF%D9%84%DB%8C%D9%87/</guid>
+      <guid>https://code-hub-8zmr.vercel.app//posts/%D9%85%D8%AC%D9%84%D9%87-%D8%A7%D8%AD%DA%A9%D8%A7%D9%85-%D8%B9%D8%AF%D9%84%DB%8C%D9%87/</guid>
       <description>&lt;p&gt;&lt;strong&gt;1. علم الفقه معرفة المسائل الشرعية العملية. (علم فقه مسائل شرعيهء عملية يي بيلمكدر)&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;2. الأمور بمقاصدها (بر إيشدن مقصد نه إيسه حكم أكا كوره در&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;3. العبرة في العقود للمقاصد والمعاني لا للألفاظ والمعاني. (عقودده إعتبار مقاصد و معاني يه در ألفاظ و مباني يه دكلدر)&lt;/strong&gt;&lt;/p&gt;
