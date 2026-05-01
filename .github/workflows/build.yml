@@ -45,11 +45,11 @@ jobs:
           chmod +x scripts/build_zim.sh
           ./scripts/build_zim.sh
 
-      - name: Get version from commit message
+      - name: Generate version tag
         id: version
         run: |
-          VERSION=$(git log -1 --pretty=%B | head -n1 | sed 's/^[[:space:]]*//')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          TAG="v$(date +%Y%m%d-%H%M%S)-${GITHUB_RUN_NUMBER}"
+          echo "VERSION=$TAG" >> $GITHUB_ENV
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
