@@ -3,35 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فهرست قوانین ایران</title>
+    <title>مجله قوانین ایران</title>
     <style>
-        body { font-family: 'Vazir', sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem; }
-        h1 { text-align: center; }
-        ul { list-style: none; padding: 0; }
-        li { margin: 0.8rem 0; }
-        a { text-decoration: none; color: #0066cc; }
-        a:hover { text-decoration: underline; }
-        input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; }
-    </style>
-    <script>
-        function filterList() {
-            const input = document.getElementById('search');
-            const filter = input.value.toLowerCase();
-            const items = document.querySelectorAll('#law-list li');
-            items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(filter) ? '' : 'none';
-            });
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    </script>
+
+        body {
+            font-family: 'Vazir', 'Tahoma', 'Segoe UI', system-ui, sans-serif;
+            background: #fefefe;
+            color: #1e1a15;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 780px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header – minimal, only a thin line */
+        .header {
+            border-bottom: 1px solid #e0ddd9;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            color: #2c2b28;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            color: #8b7e6b;
+            margin-top: 0.25rem;
+        }
+
+        /* Search field */
+        .search-wrapper {
+            margin-bottom: 2rem;
+        }
+
+        #search {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #f9f8f6;
+            border: 1px solid #e3dfd9;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        #search:focus {
+            border-color: #c0a87a;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(192, 168, 122, 0.1);
+        }
+
+        /* Result counter */
+        .result-meta {
+            font-size: 0.8rem;
+            color: #8b7e6b;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        /* Law list – minimal cards */
+        .law-list {
+            list-style: none;
+            margin-top: 0.5rem;
+        }
+
+        .law-list li {
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #f0ede8;
+            transition: background 0.1s;
+        }
+
+        .law-list li a {
+            display: block;
+            padding: 0.7rem 0.2rem;
+            text-decoration: none;
+            color: #2c5f2d;
+            font-weight: 450;
+        }
+
+        .law-list li a:hover {
+            background: #fbf9f6;
+            padding-right: 0.5rem;
+            transition: padding 0.1s;
+        }
+
+        /* footer */
+        .footer {
+            margin-top: 3rem;
+            font-size: 0.7rem;
+            color: #aaa28b;
+            text-align: center;
+            border-top: 1px solid #f0ede8;
+            padding-top: 1.5rem;
+        }
+
+        @media (max-width: 550px) {
+            .container { padding: 0 1rem; margin: 1.5rem auto; }
+            .header h1 { font-size: 1.5rem; }
+        }
+    </style>
 </head>
 <body>
-    <h1>📚 قوانین و مقررات ایران</h1>
-    <input type="text" id="search" onkeyup="filterList()" placeholder="جستجو...">
-    <ul id="law-list">
-        {% for entry in entries %}
-        <li><a href="{{ entry.file }}">{{ entry.title }}</a></li>
-        {% endfor %}
-    </ul>
+<div class="container">
+    <div class="header">
+        <h1>مجله قوانین ایران</h1>
+        <p>تدوین و تنقیح قوانین – به یاد احمد جودت پاشا</p>
+    </div>
+
+    <div class="search-wrapper">
+        <input type="text" id="search" placeholder="جستجو در عنوان و متن قوانین ..." autocomplete="off">
+    </div>
+    <div id="result-meta" class="result-meta"></div>
+    <ul id="law-list" class="law-list"></ul>
+    <div class="footer">
+        این مجموعه به صورت خودکار از مشارکت‌های عمومی تولید می‌شود • نسخه آفلاین ZIM با هر بروزرسانی منتشر می‌گردد
+    </div>
+</div>
+
+<script>
+    let searchIndex = [];
+
+    async function loadIndex() {
+        try {
+            const resp = await fetch('search_index.json');
+            if (!resp.ok) throw new Error('Index not found');
+            searchIndex = await resp.json();
+            renderList(searchIndex);
+        } catch(e) {
+            document.getElementById('law-list').innerHTML = '<li>خطا در بارگذاری فهرست</li>';
+            console.error(e);
+        }
+    }
+
+    function renderList(items) {
+        const container = document.getElementById('law-list');
+        const meta = document.getElementById('result-meta');
+        if (!items.length) {
+            container.innerHTML = '<li>نتیجه‌ای یافت نشد</li>';
+            meta.innerHTML = '';
+            return;
+        }
+        meta.innerHTML = `${items.length} عنوان`;
+        container.innerHTML = items.map(item => `<li><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></li>`).join('');
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function filterIndex(query) {
+        if (!query.trim()) {
+            renderList(searchIndex);
+            return;
+        }
+        const q = query.trim().toLowerCase();
+        const filtered = searchIndex.filter(item =>
+            item.title.toLowerCase().includes(q) ||
+            (item.content && item.content.toLowerCase().includes(q))
+        );
+        renderList(filtered);
+    }
+
+    let debounce;
+    document.getElementById('search').addEventListener('input', (e) => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => filterIndex(e.target.value), 250);
+    });
+
+    loadIndex();
+</script>
 </body>
 </html>
