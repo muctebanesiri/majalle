@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    # Only run if commit message contains "release" (case-insensitive)
+    # Only run if commit message contains "release" (case‑insensitive)
     if: contains(github.event.head_commit.message, 'release')
     runs-on: ubuntu-latest
     steps:
@@ -55,22 +55,31 @@ jobs:
       - name: Get last release tag
         id: last_tag
         run: |
-          # Get the most recent tag (fallback to first commit if no tags exist)
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
           echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 
-      - name: Generate changelog since last release
+      - name: Generate changelog and contributors list
         id: changelog
         run: |
           if [ "$LAST_TAG" = "none" ]; then
-            # No previous tag – list all commits
-            CHANGELOG=$(git log --pretty=format:"- %s (%an)" HEAD)
+            # No previous tag – take all commits
+            COMMITS=$(git log --pretty=format:"- %s (%an)" HEAD)
+            AUTHORS=$(git log --pretty=format:"%an" HEAD | sort -u)
           else
-            CHANGELOG=$(git log --pretty=format:"- %s (%an)" $LAST_TAG..HEAD)
+            COMMITS=$(git log --pretty=format:"- %s (%an)" $LAST_TAG..HEAD)
+            AUTHORS=$(git log --pretty=format:"%an" $LAST_TAG..HEAD | sort -u)
           fi
-          # Write changelog to a file
-          echo "$CHANGELOG" > ./release_body.md
-          echo "CHANGELOG_FILE=./release_body.md" >> $GITHUB_ENV
+          # Build release body
+          echo "# تغییرات" > release_body.md
+          echo "" >> release_body.md
+          echo "$COMMITS" >> release_body.md
+          echo "" >> release_body.md
+          echo "## مشارکت‌کنندگان" >> release_body.md
+          echo "" >> release_body.md
+          for author in $AUTHORS; do
+            echo "- $author" >> release_body.md
+          done
+          echo "CHANGELOG_FILE=release_body.md" >> $GITHUB_ENV
 
       - name: Set version (date only)
         id: version
