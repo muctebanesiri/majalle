@@ -3,38 +3,43 @@ import os
 import glob
 import json
 import re
-from shutil import copyfile
 from jinja2 import Environment, FileSystemLoader
 
-def clean_html_text(html_path):
+def extract_title_from_html(html_path):
+    """Extract title from <title> tag, fallback to filename."""
     with open(html_path, 'r', encoding='utf-8') as f:
-        data = f.read()
-    data = re.sub(r'<script.*?</script>', '', data, flags=re.DOTALL)
-    data = re.sub(r'<style.*?</style>', '', data, flags=re.DOTALL)
-    text = re.sub(r'<[^>]+>', ' ', data)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
+        content = f.read()
+    match = re.search(r'<title>(.*?)</title>', content, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    base = os.path.basename(html_path).replace('.html', '').replace('-', ' ')
+    return base
 
 def build_index(html_dir, template_dir):
-    # 1. copy or render index.html from template (no variables needed)
+    # Find all law HTML files (exclude index.html)
+    all_files = glob.glob(os.path.join(html_dir, '*.html'))
+    law_files = [f for f in all_files if not f.endswith('index.html')]
+
+    laws = []
+    for f in law_files:
+        title = extract_title_from_html(f)
+        url = os.path.basename(f)
+        laws.append({'title': title, 'url': url})
+    laws.sort(key=lambda x: x['title'])
+
+    # Load template and replace placeholder
     env = Environment(loader=FileSystemLoader(template_dir))
     template = env.get_template('index_template.html')
-    with open(os.path.join(html_dir, 'index.html'), 'w', encoding='utf-8') as f:
-        f.write(template.render())   # no variables
+    html_content = template.render()
 
-    # 2. generate search_index.json
-    law_files = glob.glob(os.path.join(html_dir, '*.html'))
-    law_files = [f for f in law_files if not f.endswith('index.html')]
+    # Convert laws to JavaScript array
+    laws_js = json.dumps(laws, ensure_ascii=False, indent=2)
+    laws_var = f'var laws = {laws_js};'
+    html_content = html_content.replace('LAWS_ARRAY_PLACEHOLDER', laws_var)
 
-    search_index = []
-    for path in law_files:
-        title = os.path.basename(path).replace('.html', '').replace('-', ' ')
-        url = os.path.basename(path)
-        content = clean_html_text(path)
-        search_index.append({'title': title, 'url': url, 'content': content})
-
-    with open(os.path.join(html_dir, 'search_index.json'), 'w', encoding='utf-8') as f:
-        json.dump(search_index, f, ensure_ascii=False, indent=2)
+    output_path = os.path.join(html_dir, 'index.html')
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
 
 if __name__ == '__main__':
     import argparse
