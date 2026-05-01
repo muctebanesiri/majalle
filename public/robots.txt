@@ -1,3 +1,0 @@
-User-agent: *
-Disallow:
-Sitemap: https://code-hub-8zmr.vercel.app//sitemap.xml
