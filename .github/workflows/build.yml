@@ -1,0 +1,61 @@
+name: Build and Release ZIM
+
+on:
+  push:
+    paths:
+      - 'src/md/**/*.md'
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update && sudo apt-get install -y zim-tools
+
+      - name: Convert Markdown to HTML
+        run: |
+          mkdir -p src/html
+          for md in src/md/*.md; do
+            base=$(basename "$md" .md)
+            python scripts/convert_md_to_html.py --md "$md" --html "src/html/${base}.html"
+          done
+
+      - name: Build index.html
+        run: python scripts/build_index.py --html-dir src/html --output src/html/index.html
+
+      - name: Build ZIM file
+        run: |
+          chmod +x scripts/build_zim.sh
+          ./scripts/build_zim.sh
+
+      - name: Get version from commit message
+        id: version
+        run: |
+          VERSION=$(git log -1 --pretty=%B | head -n1 | sed 's/^[[:space:]]*//')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
+          body: "Automated build from commit [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+          files: laws_*.zim
+          fail_on_unmatched_files: true

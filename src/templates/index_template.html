@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فهرست قوانین ایران</title>
+    <style>
+        body { font-family: 'Vazir', sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem; }
+        h1 { text-align: center; }
+        ul { list-style: none; padding: 0; }
+        li { margin: 0.8rem 0; }
+        a { text-decoration: none; color: #0066cc; }
+        a:hover { text-decoration: underline; }
+        input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; }
+    </style>
+    <script>
+        function filterList() {
+            const input = document.getElementById('search');
+            const filter = input.value.toLowerCase();
+            const items = document.querySelectorAll('#law-list li');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>📚 قوانین و مقررات ایران</h1>
+    <input type="text" id="search" onkeyup="filterList()" placeholder="جستجو...">
+    <ul id="law-list">
+        {% for entry in entries %}
+        <li><a href="{{ entry.file }}">{{ entry.title }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

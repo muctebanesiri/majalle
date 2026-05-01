@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | قوانین ایران</title>
+    <style>
+        body {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            line-height: 1.7;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #faf9f8;
+            color: #1e1e1e;
+        }
+        h1 { font-size: 1.8rem; border-bottom: 2px solid #ccc; }
+        h2 { font-size: 1.4rem; margin-top: 1.5rem; }
+        p { text-align: justify; }
+        .back-link { display: inline-block; margin-top: 2rem; color: #0066cc; }
+        @media (max-width: 600px) { body { padding: 1rem; } }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    {{ content|safe }}
+    <a class="back-link" href="index.html">← بازگشت به فهرست</a>
+</body>
+</html>
