@@ -1,37 +1,241 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="fa">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فهرست قوانین ایران</title>
+    <title>مجله قوانین ایران</title>
     <style>
-        body { font-family: 'Vazir', sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem; }
-        h1 { text-align: center; }
-        ul { list-style: none; padding: 0; }
-        li { margin: 0.8rem 0; }
-        a { text-decoration: none; color: #0066cc; }
-        a:hover { text-decoration: underline; }
-        input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; }
-    </style>
-    <script>
-        function filterList() {
-            const input = document.getElementById('search');
-            const filter = input.value.toLowerCase();
-            const items = document.querySelectorAll('#law-list li');
-            items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(filter) ? '' : 'none';
-            });
+        /* Modern Wikipedia (Vector 2022) reset and variables */
+        :root {
+            --background-color: #ffffff;
+            --sidebar-background: #f8f9fa;
+            --border-color: #eaecf0;
+            --link-color: #0645ad;
+            --link-visited: #0b0080;
+            --text-color: #202122;
+            --search-border: #a2a9b1;
+            --search-focus: #36c;
         }
-    </script>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Vazir', 'Segoe UI', 'Tahoma', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        .mw-page-container {
+            display: grid;
+            grid-template-columns: 15rem 1fr;
+            grid-template-rows: auto 1fr auto;
+            min-height: 100vh;
+        }
+        /* Sidebar (Vector 2022 style) */
+        .mw-sidebar {
+            grid-row: 1 / -1;
+            background: var(--sidebar-background);
+            border-left: 1px solid var(--border-color);
+            padding: 1.5rem 1rem;
+        }
+        .mw-sidebar-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .mw-sidebar-logo img {
+            max-width: 100px;
+            border-radius: 4px;
+        }
+        .mw-sidebar-logo h2 {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            font-weight: normal;
+        }
+        .mw-sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+        .mw-sidebar-nav li {
+            margin-bottom: 0.5rem;
+        }
+        .mw-sidebar-nav a {
+            text-decoration: none;
+            color: var(--link-color);
+            display: block;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+        }
+        .mw-sidebar-nav a:hover {
+            background: #e9ecef;
+            text-decoration: underline;
+        }
+        /* Main content area */
+        .mw-content-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .mw-header {
+            padding: 1.2rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--background-color);
+        }
+        .mw-header h1 {
+            font-family: 'Vazir', 'Linux Libertine', 'Georgia', serif;
+            font-weight: normal;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        .mw-header p {
+            font-size: 0.85rem;
+            color: #54595d;
+        }
+        .mw-searchbar {
+            padding: 1rem 2rem;
+            background: var(--background-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .mw-searchbar input {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--search-border);
+            border-radius: 2px;
+            font-family: inherit;
+        }
+        .mw-searchbar input:focus {
+            outline: none;
+            border-color: var(--search-focus);
+            box-shadow: inset 0 0 0 1px var(--search-focus);
+        }
+        .mw-content {
+            padding: 2rem;
+            flex: 1;
+        }
+        .mw-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .mw-content li {
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 0;
+        }
+        .mw-content li a {
+            text-decoration: none;
+            color: var(--link-color);
+            font-size: 1rem;
+        }
+        .mw-content li a:hover {
+            text-decoration: underline;
+            color: var(--link-visited);
+        }
+        .no-results {
+            text-align: center;
+            font-style: italic;
+            color: #72777d;
+            padding: 2rem 0;
+        }
+        .mw-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            font-size: 0.75rem;
+            color: #54595d;
+            background: var(--sidebar-background);
+            text-align: center;
+        }
+        /* Mobile adaptation */
+        @media (max-width: 720px) {
+            .mw-page-container {
+                grid-template-columns: 1fr;
+            }
+            .mw-sidebar {
+                display: none;  /* hide sidebar on mobile, can be toggled with a button if needed */
+            }
+            .mw-header h1 {
+                font-size: 1.4rem;
+            }
+            .mw-searchbar input {
+                max-width: 100%;
+            }
+            .mw-content {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>📚 قوانین و مقررات ایران</h1>
-    <input type="text" id="search" onkeyup="filterList()" placeholder="جستجو...">
-    <ul id="law-list">
-        {% for entry in entries %}
-        <li><a href="{{ entry.file }}">{{ entry.title }}</a></li>
-        {% endfor %}
-    </ul>
+<div class="mw-page-container">
+    <!-- Sidebar -->
+    <div class="mw-sidebar">
+        <div class="mw-sidebar-logo">
+            <img src="icon.png" alt="Logo" onerror="this.style.display='none'">
+            <h2>مجله</h2>
+        </div>
+        <div class="mw-sidebar-nav">
+            <ul>
+                <li><a href="index.html">صفحه اصلی</a></li>
+                <!-- add more links if needed -->
+            </ul>
+        </div>
+    </div>
+    <!-- Main content -->
+    <div class="mw-content-container">
+        <div class="mw-header">
+            <h1>مجله قوانین ایران</h1>
+            <p>تدوین و تنقیح قوانین – به یاد احمد جودت پاشا</p>
+        </div>
+        <div class="mw-searchbar">
+            <input type="text" id="searchInput" placeholder="جستجوی عنوان قانون..." autocomplete="off">
+        </div>
+        <div class="mw-content">
+            <ul id="lawList"></ul>
+        </div>
+        <div class="mw-footer">
+            این مجموعه به صورت خودکار از مشارکت‌های عمومی تولید می‌شود • نسخه آفلاین ZIM با هر بروزرسانی منتشر می‌گردد
+        </div>
+    </div>
+</div>
+<script>
+    // The laws array will be inserted here by build_index.py
+    var laws = LAWS_ARRAY_PLACEHOLDER;
+
+    function render(filterText) {
+        var filtered = laws;
+        var searchValue = filterText.trim();
+        if (searchValue !== "") {
+            var lower = searchValue.toLowerCase();
+            filtered = laws.filter(function(item) {
+                return item.title.toLowerCase().indexOf(lower) !== -1;
+            });
+        }
+        var container = document.getElementById('lawList');
+        container.innerHTML = '';
+        if (filtered.length === 0) {
+            var li = document.createElement('li');
+            li.className = 'no-results';
+            li.textContent = 'هیچ قانونی یافت نشد.';
+            container.appendChild(li);
+            return;
+        }
+        for (var i = 0; i < filtered.length; i++) {
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.href = filtered[i].url;
+            a.textContent = filtered[i].title;
+            li.appendChild(a);
+            container.appendChild(li);
+        }
+    }
+
+    var searchBox = document.getElementById('searchInput');
+    searchBox.addEventListener('input', function(e) {
+        render(e.target.value);
+    });
+    render('');
+</script>
 </body>
 </html>
