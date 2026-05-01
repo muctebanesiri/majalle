@@ -1,118 +1,29 @@
-name: Build and Release ZIM
+cat > scripts/build_index.py << 'EOF'
+#!/usr/bin/env python3
+import os
+from jinja2 import Environment, FileSystemLoader
+import glob
 
-on:
-  push:
-    branches:
-      - main
+def build_index(html_dir, output_path, template_dir):
+    html_files = glob.glob(os.path.join(html_dir, '*.html'))
+    entries = []
+    for f in html_files:
+        if os.path.basename(f) == 'index.html':
+            continue
+        title = os.path.basename(f).replace('.html', '').replace('-', ' ')
+        entries.append({'title': title, 'file': os.path.basename(f)})
+    entries.sort(key=lambda x: x['title'])
+    env = Environment(loader=FileSystemLoader(template_dir))
+    template = env.get_template('index_template.html')
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(template.render(entries=entries))
 
-permissions:
-  contents: write
-
-jobs:
-  build:
-    if: contains(github.event.head_commit.message, 'release')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          sudo apt-get update && sudo apt-get install -y zim-tools
-
-      - name: Convert Markdown to HTML
-        run: |
-          mkdir -p src/html
-          for md in src/md/*.md; do
-            base=$(basename "$md" .md)
-            python scripts/convert_md_to_html.py --md "$md" --html "src/html/${base}.html"
-          done
-
-      - name: Copy static assets
-        run: |
-          cp src/static/pasha.png src/html/ 2>/dev/null || true
-          cp src/static/icon_48.png src/html/ 2>/dev/null || true
-
-      - name: Build index and search JSON
-        run: python scripts/build_index.py --html-dir src/html --template-dir src/templates
-
-      - name: Set version (date + run number)
-        id: version
-        run: |
-          VERSION="$(date +%Y-%m-%d)-${GITHUB_RUN_NUMBER}"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Build ZIM file
-        run: |
-          chmod +x scripts/build_zim.sh
-          ./scripts/build_zim.sh "$VERSION"
-        env:
-          VERSION: ${{ env.VERSION }}
-
-      - name: Debug ZIM file
-        run: |
-          echo "ZIM_FILE: ${{ env.ZIM_FILE }}"
-          ls -la ${{ env.ZIM_FILE }} || echo "ZIM file not found"
-
-      - name: Generate changelog & contributors (with real username fallback)
-        id: changelog
-        run: |
-          clean_subject() {
-            echo "$1" | sed -E 's/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee]:[[:space:]]*//; s/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee][[:space:]]+//'
-          }
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
-          if [ "$LAST_TAG" = "none" ]; then
-            LOG=$(git log --pretty=format:"%s|%aN|%aE" HEAD)
-          else
-            LOG=$(git log --pretty=format:"%s|%aN|%aE" $LAST_TAG..HEAD)
-          fi
-          echo "Changes" > release_body.md
-          echo "" >> release_body.md
-          declare -A mention_map
-          while IFS= read -r line; do
-            [ -z "$line" ] && continue
-            subject="${line%%|*}"
-            rest="${line#*|}"
-            name="${rest%|*}"
-            email="${rest##*|}"
-            mention=$(echo "$email" | cut -d'@' -f1)
-            # Filter out invalid/generic usernames
-            if [[ "$mention" == *"github-actions"* ]] || [[ "$mention" == *"actions"* ]] || [[ "$mention" == "git" ]] || [[ "$mention" == "noreply" ]] || [[ "$mention" == "user" ]] || [[ "$mention" =~ ^[0-9]+\+ ]]; then
-              continue
-            fi
-            cleaned=$(clean_subject "$subject")
-            echo "- $cleaned (by @$mention)" >> release_body.md
-            mention_map["$mention"]="$name"
-          done <<< "$LOG"
-          echo "" >> release_body.md
-          echo "Contributors" >> release_body.md
-          echo "" >> release_body.md
-          mentions=()
-          for m in "${!mention_map[@]}"; do
-            mentions+=("$m")
-          done
-          if [ ${#mentions[@]} -eq 0 ]; then
-            echo "- @muctebanesiri" >> release_body.md
-          else
-            for mention in $(printf '%s\n' "${mentions[@]}" | sort -u); do
-              echo "- @$mention" >> release_body.md
-            done
-          fi
-          echo "CHANGELOG_FILE=release_body.md" >> $GITHUB_ENV
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.VERSION }}
-          name: ${{ env.VERSION }}
-          body_path: ${{ env.CHANGELOG_FILE }}
-          files: ${{ env.ZIM_FILE }}
-          fail_on_unmatched_files: true
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--html-dir', default='src/html')
+    parser.add_argument('--output', default='src/html/index.html')
+    parser.add_argument('--template-dir', default='src/templates')
+    args = parser.parse_args()
+    build_index(args.html_dir, args.output, args.template_dir)
+EOF
