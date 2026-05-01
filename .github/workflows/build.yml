@@ -4,8 +4,7 @@ on:
   push:
     paths:
       - 'src/md/**/*.md'
-    branches:
-      - main
+    branches: [ main ]
 
 permissions:
   contents: write
@@ -14,8 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -37,8 +35,13 @@ jobs:
             python scripts/convert_md_to_html.py --md "$md" --html "src/html/${base}.html"
           done
 
-      - name: Build index.html
-        run: python scripts/build_index.py --html-dir src/html --output src/html/index.html
+      - name: Copy static assets
+        run: |
+          cp src/static/pasha.png src/html/ 2>/dev/null || true
+          cp src/static/icon_48.png src/html/ 2>/dev/null || true
+
+      - name: Build index and search JSON
+        run: python scripts/build_index.py --html-dir src/html --template-dir src/templates
 
       - name: Build ZIM file
         run: |
