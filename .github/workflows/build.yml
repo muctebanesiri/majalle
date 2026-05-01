@@ -4,7 +4,8 @@ on:
   push:
     paths:
       - 'src/md/**/*.md'
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -13,7 +14,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -48,13 +50,15 @@ jobs:
           chmod +x scripts/build_zim.sh
           ./scripts/build_zim.sh
 
-      - name: Get version from commit message
+      - name: Generate valid tag name
         id: version
         run: |
-          VERSION=$(git log -1 --pretty=%B | head -n1 | sed 's/^[[:space:]]*//')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          # Use a clean, safe tag: vYYYYMMDD-HHMMSS-runNumber
+          TAG="v$(date +%Y%m%d-%H%M%S)-${GITHUB_RUN_NUMBER}"
+          echo "VERSION=$TAG" >> $GITHUB_ENV
+          echo "Generated tag: $TAG"
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.VERSION }}
