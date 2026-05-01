@@ -2,24 +2,22 @@ name: Build and Release ZIM
 
 on:
   push:
-    paths:
-      - 'src/md/**/*.md'
     branches:
       - main
+    # No paths filter – any commit with "release" triggers
 
 permissions:
   contents: write
 
 jobs:
   build:
-    # Only run if commit message contains "release" (case‑insensitive)
     if: contains(github.event.head_commit.message, 'release')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # full history for tags and changelog
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -58,24 +56,32 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
           echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 
-      - name: Generate changelog and contributors list
+      - name: Generate changelog (strip "release" from subjects) and contributors
         id: changelog
         run: |
+          # Remove "release:" or "release " (case‑insensitive) from start of subject
+          clean_subject() {
+            echo "$1" | sed -E 's/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee][[:space:]]*//; s/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee]:[[:space:]]*//'
+          }
           if [ "$LAST_TAG" = "none" ]; then
-            # No previous tag – take all commits
-            COMMITS=$(git log --pretty=format:"- %s (%an)" HEAD)
-            AUTHORS=$(git log --pretty=format:"%an" HEAD | sort -u)
+            COMMITS=$(git log --pretty=format:"%s|%an" HEAD)
           else
-            COMMITS=$(git log --pretty=format:"- %s (%an)" $LAST_TAG..HEAD)
-            AUTHORS=$(git log --pretty=format:"%an" $LAST_TAG..HEAD | sort -u)
+            COMMITS=$(git log --pretty=format:"%s|%an" $LAST_TAG..HEAD)
           fi
-          # Build release body
           echo "# تغییرات" > release_body.md
           echo "" >> release_body.md
-          echo "$COMMITS" >> release_body.md
+          while IFS= read -r line; do
+            if [ -n "$line" ]; then
+              subject="${line%|*}"
+              author="${line#*|}"
+              cleaned=$(clean_subject "$subject")
+              echo "- $cleaned ($author)" >> release_body.md
+            fi
+          done <<< "$COMMITS"
           echo "" >> release_body.md
           echo "## مشارکت‌کنندگان" >> release_body.md
           echo "" >> release_body.md
+          AUTHORS=$(echo "$COMMITS" | cut -d'|' -f2 | sort -u)
           for author in $AUTHORS; do
             echo "- $author" >> release_body.md
           done
@@ -86,7 +92,6 @@ jobs:
         run: |
           VERSION=$(date +%Y-%m-%d)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Release version: $VERSION"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
