@@ -54,11 +54,15 @@ jobs:
         run: |
           chmod +x scripts/build_zim.sh
           ./scripts/build_zim.sh "$VERSION"
+        env:
+          VERSION: ${{ env.VERSION }}
 
-      - name: Debug – list files
-        run: ls -la
+      - name: Debug ZIM file
+        run: |
+          echo "Expected ZIM_FILE: ${{ env.ZIM_FILE }}"
+          ls -la ${{ env.ZIM_FILE }} || echo "ZIM file not found"
 
-      - name: Generate changelog & contributors (with fallback)
+      - name: Generate changelog & contributors
         id: changelog
         run: |
           clean_subject() {
@@ -106,5 +110,5 @@ jobs:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
           body_path: ${{ env.CHANGELOG_FILE }}
-          files: majalle-${{ env.VERSION }}.zim
+          files: ${{ env.ZIM_FILE }}
           fail_on_unmatched_files: true
