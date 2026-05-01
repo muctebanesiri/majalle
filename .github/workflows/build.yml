@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-    # No paths filter – any commit with "release" triggers
 
 permissions:
   contents: write
@@ -56,34 +55,37 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
           echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 
-      - name: Generate changelog (strip "release" from subjects) and contributors
+      - name: Generate changelog & tag contributors
         id: changelog
         run: |
-          # Remove "release:" or "release " (case‑insensitive) from start of subject
           clean_subject() {
-            echo "$1" | sed -E 's/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee][[:space:]]*//; s/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee]:[[:space:]]*//'
+            echo "$1" | sed -E 's/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee]:[[:space:]]*//; s/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee][[:space:]]+//'
           }
           if [ "$LAST_TAG" = "none" ]; then
-            COMMITS=$(git log --pretty=format:"%s|%an" HEAD)
+            LOG=$(git log --pretty=format:"%s|%aN|%aE" HEAD)
           else
-            COMMITS=$(git log --pretty=format:"%s|%an" $LAST_TAG..HEAD)
+            LOG=$(git log --pretty=format:"%s|%aN|%aE" $LAST_TAG..HEAD)
           fi
-          echo "# تغییرات" > release_body.md
+          echo "Changes" > release_body.md
           echo "" >> release_body.md
+          declare -A mention_map
           while IFS= read -r line; do
-            if [ -n "$line" ]; then
-              subject="${line%|*}"
-              author="${line#*|}"
-              cleaned=$(clean_subject "$subject")
-              echo "- $cleaned ($author)" >> release_body.md
-            fi
-          done <<< "$COMMITS"
+            [ -z "$line" ] && continue
+            subject="${line%%|*}"
+            rest="${line#*|}"
+            name="${rest%|*}"
+            email="${rest##*|}"
+            # Extract local part of email (before @) as mention
+            mention=$(echo "$email" | cut -d'@' -f1)
+            cleaned=$(clean_subject "$subject")
+            echo "- $cleaned (by @$mention)" >> release_body.md
+            mention_map["$mention"]="$name"
+          done <<< "$LOG"
           echo "" >> release_body.md
-          echo "## مشارکت‌کنندگان" >> release_body.md
+          echo "Contributors" >> release_body.md
           echo "" >> release_body.md
-          AUTHORS=$(echo "$COMMITS" | cut -d'|' -f2 | sort -u)
-          for author in $AUTHORS; do
-            echo "- $author" >> release_body.md
+          for mention in "${!mention_map[@]}"; do
+            echo "- @$mention" >> release_body.md
           done
           echo "CHANGELOG_FILE=release_body.md" >> $GITHUB_ENV
 
