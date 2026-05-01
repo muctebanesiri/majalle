@@ -55,7 +55,7 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
           echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 
-      - name: Generate changelog & tag contributors
+      - name: Generate changelog & tag contributors (with fallback)
         id: changelog
         run: |
           clean_subject() {
@@ -75,7 +75,6 @@ jobs:
             rest="${line#*|}"
             name="${rest%|*}"
             email="${rest##*|}"
-            # Extract local part of email (before @) as mention
             mention=$(echo "$email" | cut -d'@' -f1)
             cleaned=$(clean_subject "$subject")
             echo "- $cleaned (by @$mention)" >> release_body.md
@@ -84,9 +83,20 @@ jobs:
           echo "" >> release_body.md
           echo "Contributors" >> release_body.md
           echo "" >> release_body.md
-          for mention in "${!mention_map[@]}"; do
-            echo "- @$mention" >> release_body.md
+          # Collect unique mentions
+          mentions=()
+          for m in "${!mention_map[@]}"; do
+            mentions+=("$m")
           done
+          # If no mentions found, add fallback
+          if [ ${#mentions[@]} -eq 0 ]; then
+            echo "- @muctebanesiri" >> release_body.md
+          else
+            # Sort and print
+            for mention in $(echo "${mentions[@]}" | tr ' ' '\n' | sort -u); do
+              echo "- @$mention" >> release_body.md
+            done
+          fi
           echo "CHANGELOG_FILE=release_body.md" >> $GITHUB_ENV
 
       - name: Set version (date only)
