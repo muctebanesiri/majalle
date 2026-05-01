@@ -59,10 +59,10 @@ jobs:
 
       - name: Debug ZIM file
         run: |
-          echo "Expected ZIM_FILE: ${{ env.ZIM_FILE }}"
+          echo "ZIM_FILE: ${{ env.ZIM_FILE }}"
           ls -la ${{ env.ZIM_FILE }} || echo "ZIM file not found"
 
-      - name: Generate changelog & contributors
+      - name: Generate changelog & contributors (filter bot, fallback to muctebanesiri)
         id: changelog
         run: |
           clean_subject() {
@@ -84,6 +84,10 @@ jobs:
             name="${rest%|*}"
             email="${rest##*|}"
             mention=$(echo "$email" | cut -d'@' -f1)
+            # Skip GitHub Actions bot and other service accounts
+            if [[ "$mention" == *"github-actions"* ]] || [[ "$mention" == *"actions"* ]]; then
+              continue
+            fi
             cleaned=$(clean_subject "$subject")
             echo "- $cleaned (by @$mention)" >> release_body.md
             mention_map["$mention"]="$name"
