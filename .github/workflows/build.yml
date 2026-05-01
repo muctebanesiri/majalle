@@ -44,34 +44,27 @@ jobs:
       - name: Build index and search JSON
         run: python scripts/build_index.py --html-dir src/html --template-dir src/templates
 
+      - name: Set version (date + run number)
+        id: version
+        run: |
+          VERSION="$(date +%Y-%m-%d)-${GITHUB_RUN_NUMBER}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Build ZIM file
-        id: zim
         run: |
           chmod +x scripts/build_zim.sh
-          ./scripts/build_zim.sh
-          # Capture the exact ZIM file name
-          ZIM_FILE=$(ls majalle_*.zim | head -1)
-          echo "ZIM_FILE=$ZIM_FILE" >> $GITHUB_ENV
-          echo "Created ZIM: $ZIM_FILE"
+          ./scripts/build_zim.sh "$VERSION"
 
       - name: Debug – list files
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -la
-          echo "ZIM file: ${{ env.ZIM_FILE }}"
+        run: ls -la
 
-      - name: Get last release tag
-        id: last_tag
-        run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
-          echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
-
-      - name: Generate changelog & tag contributors (with fallback)
+      - name: Generate changelog & contributors (with fallback)
         id: changelog
         run: |
           clean_subject() {
             echo "$1" | sed -E 's/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee]:[[:space:]]*//; s/^[Rr][Ee][Ll][Ee][Aa][Ss][Ee][[:space:]]+//'
           }
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
           if [ "$LAST_TAG" = "none" ]; then
             LOG=$(git log --pretty=format:"%s|%aN|%aE" HEAD)
           else
@@ -107,19 +100,11 @@ jobs:
           fi
           echo "CHANGELOG_FILE=release_body.md" >> $GITHUB_ENV
 
-      - name: Set version (date + run number for uniqueness)
-        id: version
-        run: |
-          VERSION="$(date +%Y-%m-%d)-${GITHUB_RUN_NUMBER}"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Release version: $VERSION"
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
           body_path: ${{ env.CHANGELOG_FILE }}
-          files: ${{ env.ZIM_FILE }}
+          files: majalle-${{ env.VERSION }}.zim
           fail_on_unmatched_files: true
-          allowUpdates: true
