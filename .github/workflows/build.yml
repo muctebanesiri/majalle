@@ -62,7 +62,7 @@ jobs:
           echo "ZIM_FILE: ${{ env.ZIM_FILE }}"
           ls -la ${{ env.ZIM_FILE }} || echo "ZIM file not found"
 
-      - name: Generate changelog & contributors (filter bot, fallback to muctebanesiri)
+      - name: Generate changelog & contributors (with real username fallback)
         id: changelog
         run: |
           clean_subject() {
@@ -84,8 +84,8 @@ jobs:
             name="${rest%|*}"
             email="${rest##*|}"
             mention=$(echo "$email" | cut -d'@' -f1)
-            # Skip GitHub Actions bot and other service accounts
-            if [[ "$mention" == *"github-actions"* ]] || [[ "$mention" == *"actions"* ]]; then
+            # Filter out invalid/generic usernames
+            if [[ "$mention" == *"github-actions"* ]] || [[ "$mention" == *"actions"* ]] || [[ "$mention" == "git" ]] || [[ "$mention" == "noreply" ]] || [[ "$mention" == "user" ]] || [[ "$mention" =~ ^[0-9]+\+ ]]; then
               continue
             fi
             cleaned=$(clean_subject "$subject")
