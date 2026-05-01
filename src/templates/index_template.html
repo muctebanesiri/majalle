@@ -5,77 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مجله قوانین ایران</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: #f8f9fa;
-            font-family: 'Vazir', 'Segoe UI', 'Tahoma', sans-serif;
-            color: #202122;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        h1 {
-            font-size: 2rem;
-            font-weight: 500;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
-        .subtitle {
-            font-size: 0.9rem;
-            color: #6c757d;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 0.75rem;
-        }
-        a {
-            text-decoration: none;
-            color: #1a73e8;
-            font-size: 1.1rem;
-            transition: color 0.2s;
-        }
-        a:hover {
-            color: #0d47a1;
-            text-decoration: underline;
-        }
-        footer {
-            margin-top: 2rem;
-            font-size: 0.75rem;
-            color: #adb5bd;
-            border-top: 1px solid #e9ecef;
-            padding-top: 1rem;
-        }
-        @media (max-width: 600px) {
-            .container { margin: 1rem; padding: 1rem; }
-            h1 { font-size: 1.5rem; }
-        }
+        body { background: white; color: black; font-family: sans-serif; line-height: 1.5; margin: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 1.8rem; font-weight: normal; }
+        ul { list-style: none; padding: 0; }
+        li { margin-bottom: 0.5rem; }
+        a { text-decoration: none; color: #0645ad; }
+        a:hover { text-decoration: underline; }
+        footer { margin-top: 2rem; font-size: 0.8rem; color: #555; border-top: 1px solid #ccc; padding-top: 1rem; }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>مجله قوانین ایران</h1>
-    <div class="subtitle">تدوین و تنقیح قوانین – به یاد احمد جودت پاشا</div>
-    <ul id="lawList">
-        <!-- Laws will be injected here -->
-    </ul>
-    <footer>این مجموعه به صورت خودکار از مشارکت‌های عمومی تولید می‌شود • نسخه آفلاین ZIM با هر بروزرسانی منتشر می‌گردد</footer>
+    <ul id="lawList"></ul>
+    <footer>قوانین ایران – نسخه آفلاین</footer>
 </div>
 <script>
     var laws = LAWS_ARRAY_PLACEHOLDER;
