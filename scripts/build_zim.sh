@@ -1,31 +1,43 @@
 #!/bin/bash
 set -e
 HTML_DIR="src/html"
-ZIM_FILE="laws_$(date +%Y%m%d_%H%M%S).zim"
+VERSION="$1"
+if [ -z "$VERSION" ]; then
+    VERSION="$(date +%Y-%m-%d-%H%M%S)"
+fi
+ZIM_FILE="majalle-${VERSION}.zim"
 
-# Copy icon into the HTML directory
+echo "Building ZIM with version: $VERSION"
+echo "Output file: $ZIM_FILE"
+
+# Copy or create icon
 if [ -f "src/static/icon_48.png" ]; then
     cp src/static/icon_48.png "$HTML_DIR/icon_48.png"
-    ILLUSTRATION="icon_48.png"
 else
     if command -v convert &> /dev/null; then
         convert -size 48x48 xc:transparent "$HTML_DIR/icon_48.png"
     else
         touch "$HTML_DIR/icon_48.png"
     fi
-    ILLUSTRATION="icon_48.png"
 fi
 
 zimwriterfs \
   --welcome=index.html \
-  --illustration="$ILLUSTRATION" \
+  --illustration="icon_48.png" \
   --language=per \
-  --name="iranian-laws" \
-  --title="Iranian Laws & Rulings" \
-  --description="Collaborative legal wiki" \
-  --longDescription="This ZIM file contains a collection of Iranian laws, regulations, and judicial rulings, formatted for offline reading with Kiwix. All content is derived from the rc.majlis dataset and user contributions, with full text search and responsive design." \
-  --creator="Contributors" \
-  --publisher="GitHub Actions" \
+  --name="مجله" \
+  --title="مجله" \
+  --description="مجله قوانین ایران" \
+  --longDescription="This ZIM file contains Iranian laws and rulings, built from the rc.majlis dataset and user contributions." \
+  --creator="Mücteba Nesiri" \
+  --publisher="Mücteba Nesiri" \
   "$HTML_DIR" "$ZIM_FILE"
 
-echo "ZIM_FILE=$ZIM_FILE" >> $GITHUB_ENV
+# Verify and set output
+if [ -f "$ZIM_FILE" ]; then
+    echo "✅ ZIM file created: $ZIM_FILE"
+    echo "ZIM_FILE=$ZIM_FILE" >> $GITHUB_ENV
+else
+    echo "❌ Failed to create $ZIM_FILE"
+    exit 1
+fi
