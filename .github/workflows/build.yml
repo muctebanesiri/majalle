@@ -45,9 +45,20 @@ jobs:
         run: python scripts/build_index.py --html-dir src/html --template-dir src/templates
 
       - name: Build ZIM file
+        id: zim
         run: |
           chmod +x scripts/build_zim.sh
           ./scripts/build_zim.sh
+          # Capture the exact ZIM file name
+          ZIM_FILE=$(ls majalle_*.zim | head -1)
+          echo "ZIM_FILE=$ZIM_FILE" >> $GITHUB_ENV
+          echo "Created ZIM: $ZIM_FILE"
+
+      - name: Debug – list files
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -la
+          echo "ZIM file: ${{ env.ZIM_FILE }}"
 
       - name: Get last release tag
         id: last_tag
@@ -83,27 +94,25 @@ jobs:
           echo "" >> release_body.md
           echo "Contributors" >> release_body.md
           echo "" >> release_body.md
-          # Collect unique mentions
           mentions=()
           for m in "${!mention_map[@]}"; do
             mentions+=("$m")
           done
-          # If no mentions found, add fallback
           if [ ${#mentions[@]} -eq 0 ]; then
             echo "- @muctebanesiri" >> release_body.md
           else
-            # Sort and print
-            for mention in $(echo "${mentions[@]}" | tr ' ' '\n' | sort -u); do
+            for mention in $(printf '%s\n' "${mentions[@]}" | sort -u); do
               echo "- @$mention" >> release_body.md
             done
           fi
           echo "CHANGELOG_FILE=release_body.md" >> $GITHUB_ENV
 
-      - name: Set version (date only)
+      - name: Set version (date + run number for uniqueness)
         id: version
         run: |
-          VERSION=$(date +%Y-%m-%d)
+          VERSION="$(date +%Y-%m-%d)-${GITHUB_RUN_NUMBER}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Release version: $VERSION"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -111,5 +120,6 @@ jobs:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
           body_path: ${{ env.CHANGELOG_FILE }}
-          files: laws_*.zim
+          files: ${{ env.ZIM_FILE }}
           fail_on_unmatched_files: true
+          allowUpdates: true
