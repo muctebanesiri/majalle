@@ -1,0 +1,64 @@
+name: Validate Markdown Frontmatter
+
+on:
+  pull_request:
+    paths:
+      - 'src/md/**/*.md'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate frontmatter in all markdown files
+        run: |
+          cd src/md
+          failed=0
+          for file in *.md; do
+            echo "Checking $file..."
+            # Extract frontmatter (content between first --- and next ---)
+            # This simple awk script extracts YAML block
+            frontmatter=$(awk '/^---$/ {flag=!flag; next} flag' "$file" | head -c 5000)
+            if [ -z "$frontmatter" ]; then
+              echo "❌ $file: No YAML frontmatter found"
+              failed=1
+              continue
+            fi
+            # Use Python to validate required fields
+            python3 << EOF
+import yaml, sys
+try:
+    data = yaml.safe_load("""$frontmatter""")
+    if not data.get('title'):
+        print(f"❌ {file}: missing 'title'")
+        sys.exit(1)
+    if not data.get('date'):
+        print(f"❌ {file}: missing 'date'")
+        sys.exit(1)
+    if not data.get('organ'):
+        print(f"❌ {file}: missing 'organ'")
+        sys.exit(1)
+    print(f"✅ {file}: OK")
+except Exception as e:
+    print(f"❌ {file}: YAML parsing error - {e}")
+    sys.exit(1)
+EOF
+            if [ $? -ne 0 ]; then
+              failed=1
+            fi
+          done
+          if [ $failed -eq 1 ]; then
+            echo "❌ Validation failed. Please add title, date, and organ in YAML frontmatter."
+            exit 1
+          fi
+          echo "✅ All markdown files have valid frontmatter."
