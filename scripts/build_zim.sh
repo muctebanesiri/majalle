@@ -31,6 +31,7 @@ zimwriterfs \
   --longDescription="This ZIM file contains Iranian laws and rulings, built from the rc.majlis dataset and user contributions." \
   --creator="Mücteba Nesiri" \
   --publisher="Mücteba Nesiri" \
+  --withFulltextIndex true \
   "$HTML_DIR" "$ZIM_FILE"
 
 # Verify and set output
