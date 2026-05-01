@@ -12,12 +12,14 @@ permissions:
 
 jobs:
   build:
+    # Only run if commit message contains "release" (case-insensitive)
+    if: contains(github.event.head_commit.message, 'release')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # full history for tags and changelog
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -50,19 +52,38 @@ jobs:
           chmod +x scripts/build_zim.sh
           ./scripts/build_zim.sh
 
-      - name: Generate valid tag name
+      - name: Get last release tag
+        id: last_tag
+        run: |
+          # Get the most recent tag (fallback to first commit if no tags exist)
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+
+      - name: Generate changelog since last release
+        id: changelog
+        run: |
+          if [ "$LAST_TAG" = "none" ]; then
+            # No previous tag – list all commits
+            CHANGELOG=$(git log --pretty=format:"- %s (%an)" HEAD)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%an)" $LAST_TAG..HEAD)
+          fi
+          # Write changelog to a file
+          echo "$CHANGELOG" > ./release_body.md
+          echo "CHANGELOG_FILE=./release_body.md" >> $GITHUB_ENV
+
+      - name: Set version (date only)
         id: version
         run: |
-          # Use a clean, safe tag: vYYYYMMDD-HHMMSS-runNumber
-          TAG="v$(date +%Y%m%d-%H%M%S)-${GITHUB_RUN_NUMBER}"
-          echo "VERSION=$TAG" >> $GITHUB_ENV
-          echo "Generated tag: $TAG"
+          VERSION=$(date +%Y-%m-%d)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Release version: $VERSION"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
-          body: "Automated build from commit [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+          body_path: ${{ env.CHANGELOG_FILE }}
           files: laws_*.zim
           fail_on_unmatched_files: true
