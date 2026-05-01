@@ -5,237 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مجله قوانین ایران</title>
     <style>
-        /* Modern Wikipedia (Vector 2022) reset and variables */
-        :root {
-            --background-color: #ffffff;
-            --sidebar-background: #f8f9fa;
-            --border-color: #eaecf0;
-            --link-color: #0645ad;
-            --link-visited: #0b0080;
-            --text-color: #202122;
-            --search-border: #a2a9b1;
-            --search-focus: #36c;
-        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
+            background: #f8f9fa;
             font-family: 'Vazir', 'Segoe UI', 'Tahoma', sans-serif;
-            background: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.5;
+            color: #202122;
+            line-height: 1.6;
         }
-        .mw-page-container {
-            display: grid;
-            grid-template-columns: 15rem 1fr;
-            grid-template-rows: auto 1fr auto;
-            min-height: 100vh;
-        }
-        /* Sidebar (Vector 2022 style) */
-        .mw-sidebar {
-            grid-row: 1 / -1;
-            background: var(--sidebar-background);
-            border-left: 1px solid var(--border-color);
-            padding: 1.5rem 1rem;
-        }
-        .mw-sidebar-logo {
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
             text-align: center;
-            margin-bottom: 2rem;
         }
-        .mw-sidebar-logo img {
-            max-width: 100px;
-            border-radius: 4px;
-        }
-        .mw-sidebar-logo h2 {
-            font-size: 1.2rem;
-            margin-top: 0.5rem;
-            font-weight: normal;
-        }
-        .mw-sidebar-nav ul {
-            list-style: none;
-            padding: 0;
-        }
-        .mw-sidebar-nav li {
+        h1 {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #2c3e50;
             margin-bottom: 0.5rem;
         }
-        .mw-sidebar-nav a {
-            text-decoration: none;
-            color: var(--link-color);
-            display: block;
-            padding: 0.3rem 0.5rem;
-            border-radius: 4px;
+        .subtitle {
+            font-size: 0.9rem;
+            color: #6c757d;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
         }
-        .mw-sidebar-nav a:hover {
-            background: #e9ecef;
-            text-decoration: underline;
-        }
-        /* Main content area */
-        .mw-content-container {
-            display: flex;
-            flex-direction: column;
-        }
-        .mw-header {
-            padding: 1.2rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--background-color);
-        }
-        .mw-header h1 {
-            font-family: 'Vazir', 'Linux Libertine', 'Georgia', serif;
-            font-weight: normal;
-            font-size: 1.8rem;
-            margin: 0;
-        }
-        .mw-header p {
-            font-size: 0.85rem;
-            color: #54595d;
-        }
-        .mw-searchbar {
-            padding: 1rem 2rem;
-            background: var(--background-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-        .mw-searchbar input {
-            width: 100%;
-            max-width: 400px;
-            padding: 0.6rem 1rem;
-            font-size: 1rem;
-            border: 1px solid var(--search-border);
-            border-radius: 2px;
-            font-family: inherit;
-        }
-        .mw-searchbar input:focus {
-            outline: none;
-            border-color: var(--search-focus);
-            box-shadow: inset 0 0 0 1px var(--search-focus);
-        }
-        .mw-content {
-            padding: 2rem;
-            flex: 1;
-        }
-        .mw-content ul {
+        ul {
             list-style: none;
             padding: 0;
-            margin: 0;
         }
-        .mw-content li {
+        li {
             margin-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-            padding: 0.5rem 0;
         }
-        .mw-content li a {
+        a {
             text-decoration: none;
-            color: var(--link-color);
-            font-size: 1rem;
+            color: #1a73e8;
+            font-size: 1.1rem;
+            transition: color 0.2s;
         }
-        .mw-content li a:hover {
+        a:hover {
+            color: #0d47a1;
             text-decoration: underline;
-            color: var(--link-visited);
         }
-        .no-results {
-            text-align: center;
-            font-style: italic;
-            color: #72777d;
-            padding: 2rem 0;
-        }
-        .mw-footer {
-            border-top: 1px solid var(--border-color);
-            padding: 1rem 2rem;
+        footer {
+            margin-top: 2rem;
             font-size: 0.75rem;
-            color: #54595d;
-            background: var(--sidebar-background);
-            text-align: center;
+            color: #adb5bd;
+            border-top: 1px solid #e9ecef;
+            padding-top: 1rem;
         }
-        /* Mobile adaptation */
-        @media (max-width: 720px) {
-            .mw-page-container {
-                grid-template-columns: 1fr;
-            }
-            .mw-sidebar {
-                display: none;  /* hide sidebar on mobile, can be toggled with a button if needed */
-            }
-            .mw-header h1 {
-                font-size: 1.4rem;
-            }
-            .mw-searchbar input {
-                max-width: 100%;
-            }
-            .mw-content {
-                padding: 1rem;
-            }
+        @media (max-width: 600px) {
+            .container { margin: 1rem; padding: 1rem; }
+            h1 { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
-<div class="mw-page-container">
-    <!-- Sidebar -->
-    <div class="mw-sidebar">
-        <div class="mw-sidebar-logo">
-            <img src="icon.png" alt="Logo" onerror="this.style.display='none'">
-            <h2>مجله</h2>
-        </div>
-        <div class="mw-sidebar-nav">
-            <ul>
-                <li><a href="index.html">صفحه اصلی</a></li>
-                <!-- add more links if needed -->
-            </ul>
-        </div>
-    </div>
-    <!-- Main content -->
-    <div class="mw-content-container">
-        <div class="mw-header">
-            <h1>مجله قوانین ایران</h1>
-            <p>تدوین و تنقیح قوانین – به یاد احمد جودت پاشا</p>
-        </div>
-        <div class="mw-searchbar">
-            <input type="text" id="searchInput" placeholder="جستجوی عنوان قانون..." autocomplete="off">
-        </div>
-        <div class="mw-content">
-            <ul id="lawList"></ul>
-        </div>
-        <div class="mw-footer">
-            این مجموعه به صورت خودکار از مشارکت‌های عمومی تولید می‌شود • نسخه آفلاین ZIM با هر بروزرسانی منتشر می‌گردد
-        </div>
-    </div>
+<div class="container">
+    <h1>مجله قوانین ایران</h1>
+    <div class="subtitle">تدوین و تنقیح قوانین – به یاد احمد جودت پاشا</div>
+    <ul id="lawList">
+        <!-- Laws will be injected here -->
+    </ul>
+    <footer>این مجموعه به صورت خودکار از مشارکت‌های عمومی تولید می‌شود • نسخه آفلاین ZIM با هر بروزرسانی منتشر می‌گردد</footer>
 </div>
 <script>
-    // The laws array will be inserted here by build_index.py
     var laws = LAWS_ARRAY_PLACEHOLDER;
-
-    function render(filterText) {
-        var filtered = laws;
-        var searchValue = filterText.trim();
-        if (searchValue !== "") {
-            var lower = searchValue.toLowerCase();
-            filtered = laws.filter(function(item) {
-                return item.title.toLowerCase().indexOf(lower) !== -1;
-            });
-        }
-        var container = document.getElementById('lawList');
-        container.innerHTML = '';
-        if (filtered.length === 0) {
-            var li = document.createElement('li');
-            li.className = 'no-results';
-            li.textContent = 'هیچ قانونی یافت نشد.';
-            container.appendChild(li);
-            return;
-        }
-        for (var i = 0; i < filtered.length; i++) {
-            var li = document.createElement('li');
-            var a = document.createElement('a');
-            a.href = filtered[i].url;
-            a.textContent = filtered[i].title;
-            li.appendChild(a);
-            container.appendChild(li);
-        }
+    var container = document.getElementById('lawList');
+    for (var i = 0; i < laws.length; i++) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = laws[i].url;
+        a.textContent = laws[i].title;
+        li.appendChild(a);
+        container.appendChild(li);
     }
-
-    var searchBox = document.getElementById('searchInput');
-    searchBox.addEventListener('input', function(e) {
-        render(e.target.value);
-    });
-    render('');
 </script>
 </body>
 </html>
