@@ -44,19 +44,20 @@ jobs:
       - name: Build index and search JSON
         run: python scripts/build_index.py --html-dir src/html --template-dir src/templates
 
-      - name: Set version (date + run number)
+      - name: Set version (per‑day counter)
         id: version
         run: |
-          VERSION="$(date +%Y-%m-%d)-${GITHUB_RUN_NUMBER}"
+          TODAY=$(date +%Y-%m-%d)
+          # Fetch all tags (needs fetch-depth: 0 already done)
+          # Find existing tags matching today's pattern "YYYY-MM-DD-N"
+          COUNTER=1
+          while git rev-parse "$TODAY-$COUNTER" >/dev/null 2>&1; do
+            COUNTER=$((COUNTER + 1))
+          done
+          VERSION="$TODAY-$COUNTER"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Build ZIM file
-        run: |
-          chmod +x scripts/build_zim.sh
-          ./scripts/build_zim.sh "$VERSION"
-        env:
-          VERSION: ${{ env.VERSION }}
-
+          echo "Using version: $VERSION"
+    
       - name: Debug ZIM file
         run: |
           echo "ZIM_FILE: ${{ env.ZIM_FILE }}"
