@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # needed for tags (version counter)
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,29 +41,38 @@ jobs:
           cp src/static/pasha.png src/html/ 2>/dev/null || true
           cp src/static/icon_48.png src/html/ 2>/dev/null || true
 
-      - name: Build index and search JSON
+      - name: Build index page
         run: python scripts/build_index.py --html-dir src/html --template-dir src/templates
 
-      - name: Set version (per‑day counter)
+      - name: Generate version tag (per‑day counter)
         id: version
         run: |
+          # Fetch all tags to ensure we have them
+          git fetch --tags
           TODAY=$(date +%Y-%m-%d)
-          # Fetch all tags (needs fetch-depth: 0 already done)
-          # Find existing tags matching today's pattern "YYYY-MM-DD-N"
           COUNTER=1
+          # Check if tag "TODAY-COUNTER" exists; increment until free
           while git rev-parse "$TODAY-$COUNTER" >/dev/null 2>&1; do
             COUNTER=$((COUNTER + 1))
           done
           VERSION="$TODAY-$COUNTER"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Using version: $VERSION"
-    
-      - name: Debug ZIM file
-        run: |
-          echo "ZIM_FILE: ${{ env.ZIM_FILE }}"
-          ls -la ${{ env.ZIM_FILE }} || echo "ZIM file not found"
 
-      - name: Generate changelog & contributors (with real username fallback)
+      - name: Build ZIM file
+        run: |
+          chmod +x scripts/build_zim.sh
+          ./scripts/build_zim.sh "$VERSION"
+        env:
+          VERSION: ${{ env.VERSION }}
+
+      - name: Debug – list generated files
+        run: |
+          echo "ZIM_FILE from environment: ${{ env.ZIM_FILE }}"
+          ls -la
+          ls -la majalle-*.zim || echo "No ZIM file found"
+
+      - name: Generate changelog & contributors
         id: changelog
         run: |
           clean_subject() {
@@ -85,8 +94,8 @@ jobs:
             name="${rest%|*}"
             email="${rest##*|}"
             mention=$(echo "$email" | cut -d'@' -f1)
-            # Filter out invalid/generic usernames
-            if [[ "$mention" == *"github-actions"* ]] || [[ "$mention" == *"actions"* ]] || [[ "$mention" == "git" ]] || [[ "$mention" == "noreply" ]] || [[ "$mention" == "user" ]] || [[ "$mention" =~ ^[0-9]+\+ ]]; then
+            # skip invalid mentions
+            if [[ "$mention" == *"github-actions"* ]] || [[ "$mention" == *"actions"* ]] || [[ "$mention" == "git" ]] || [[ "$mention" == "noreply" ]] || [[ "$mention" == "user" ]]; then
               continue
             fi
             cleaned=$(clean_subject "$subject")
