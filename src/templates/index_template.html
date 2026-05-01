@@ -1,37 +1,153 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="fa">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فهرست قوانین ایران</title>
+    <title>مجله قوانین ایران</title>
     <style>
-        body { font-family: 'Vazir', sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem; }
-        h1 { text-align: center; }
-        ul { list-style: none; padding: 0; }
-        li { margin: 0.8rem 0; }
-        a { text-decoration: none; color: #0066cc; }
-        a:hover { text-decoration: underline; }
-        input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; }
-    </style>
-    <script>
-        function filterList() {
-            const input = document.getElementById('search');
-            const filter = input.value.toLowerCase();
-            const items = document.querySelectorAll('#law-list li');
-            items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(filter) ? '' : 'none';
-            });
+        /* Wikipedia Vector‑like styles */
+        body {
+            margin: 0;
+            background: #f8f9fa;
+            font-family: 'Vazir', 'Segoe UI', 'Tahoma', sans-serif;
+            color: #202122;
+            line-height: 1.6;
         }
-    </script>
+        .mw-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .mw-header {
+            border-bottom: 1px solid #a2a9b1;
+            padding: 1rem 1.5rem;
+            background: #ffffff;
+        }
+        .mw-header h1 {
+            font-family: 'Vazir', 'Linux Libertine', 'Georgia', serif;
+            font-weight: normal;
+            font-size: 1.8rem;
+            margin: 0;
+            color: #000;
+        }
+        .mw-header p {
+            margin: 0.2rem 0 0;
+            font-size: 0.85rem;
+            color: #54595d;
+        }
+        .mw-search {
+            padding: 1rem 1.5rem;
+            background: #ffffff;
+            border-bottom: 1px solid #eaecf0;
+        }
+        .mw-search input {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #a2a9b1;
+            border-radius: 2px;
+            font-family: inherit;
+            background: #ffffff;
+        }
+        .mw-search input:focus {
+            outline: none;
+            border-color: #36c;
+            box-shadow: inset 0 0 0 1px #36c;
+        }
+        .mw-content {
+            padding: 1.5rem;
+        }
+        .mw-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .mw-content li {
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #eaecf0;
+            padding: 0.4rem 0;
+        }
+        .mw-content li a {
+            text-decoration: none;
+            color: #0645ad;
+            font-size: 1rem;
+        }
+        .mw-content li a:hover {
+            text-decoration: underline;
+            color: #0b0080;
+        }
+        .mw-footer {
+            border-top: 1px solid #eaecf0;
+            padding: 1rem 1.5rem;
+            font-size: 0.75rem;
+            color: #54595d;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        @media (max-width: 720px) {
+            .mw-header h1 { font-size: 1.4rem; }
+            .mw-search input { max-width: 100%; }
+            .mw-content { padding: 1rem; }
+        }
+        /* RTL correction */
+        .mw-content ul { padding-right: 0; }
+    </style>
 </head>
 <body>
-    <h1>📚 قوانین و مقررات ایران</h1>
-    <input type="text" id="search" onkeyup="filterList()" placeholder="جستجو...">
-    <ul id="law-list">
-        {% for entry in entries %}
-        <li><a href="{{ entry.file }}">{{ entry.title }}</a></li>
-        {% endfor %}
-    </ul>
+<div class="mw-page-container">
+    <div class="mw-header">
+        <h1>مجله قوانین ایران</h1>
+        <p>تدوین و تنقیح قوانین – به یاد احمد جودت پاشا</p>
+    </div>
+    <div class="mw-search">
+        <input type="text" id="searchInput" placeholder="جستجوی عنوان قانون..." autocomplete="off">
+    </div>
+    <div class="mw-content">
+        <ul id="lawList"></ul>
+    </div>
+    <div class="mw-footer">
+        این مجموعه به صورت خودکار از مشارکت‌های عمومی تولید می‌شود • نسخه آفلاین ZIM با هر بروزرسانی منتشر می‌گردد
+    </div>
+</div>
+<script>
+    // The laws array will be injected here by the build script
+    var laws = LAWS_ARRAY_PLACEHOLDER;
+
+    function render(filterText) {
+        var filtered = laws;
+        if (filterText.trim() !== "") {
+            var lowerFilter = filterText.trim().toLowerCase();
+            filtered = laws.filter(function(law) {
+                return law.title.toLowerCase().indexOf(lowerFilter) !== -1;
+            });
+        }
+        var ul = document.getElementById('lawList');
+        ul.innerHTML = '';
+        if (filtered.length === 0) {
+            var li = document.createElement('li');
+            li.textContent = 'هیچ قانونی یافت نشد.';
+            li.style.fontStyle = 'italic';
+            li.style.color = '#666';
+            ul.appendChild(li);
+            return;
+        }
+        for (var i = 0; i < filtered.length; i++) {
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.href = filtered[i].url;
+            a.textContent = filtered[i].title;
+            li.appendChild(a);
+            ul.appendChild(li);
+        }
+    }
+
+    var searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() {
+        render(this.value);
+    });
+    render('');
+</script>
 </body>
 </html>
