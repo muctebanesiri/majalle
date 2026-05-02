@@ -6,19 +6,29 @@ import yaml
 import markdown
 from jinja2 import Environment, FileSystemLoader
 import argparse
+from datetime import date as date_type
 
 # ------------------------------------------------------------
-# 1. Date Normalization
+# 1. Normalize Persian text: replace Arabic ي with Persian ی
+# ------------------------------------------------------------
+def normalize_persian(text):
+    """Replace Arabic ي (U+064A) with Persian ی (U+06CC) everywhere."""
+    return text.replace('\u064A', '\u06CC')
+
+# ------------------------------------------------------------
+# 2. Date Normalization
 # ------------------------------------------------------------
 def fix_date(text):
+    """Convert date patterns like 14ˏ08ˏ1370 to ۱۳۷۰/۰۸/۱۴."""
+    if not isinstance(text, str):
+        text = str(text)
     def repl(m):
         d, mth, y = m.groups()
-        # swap day and year
         return f"{y.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}/{mth.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}/{d.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}"
     return re.sub(r'(\d+)[ˏ\-/](\d+)[ˏ\-/](\d+)', repl, text)
 
 # ------------------------------------------------------------
-# 2. Extract Date and Organ from qavanin.ir lines
+# 3. Extract Date and Organ from qavanin.ir lines
 # ------------------------------------------------------------
 def extract_date_organ_from_line(line):
     content = re.sub(r'^\*\*Date:\*\*\s*', '', line)
@@ -30,7 +40,7 @@ def extract_date_organ_from_line(line):
     return None, None
 
 # ------------------------------------------------------------
-# 3. Extract Title from the First Heading
+# 4. Extract Title from the First Heading
 # ------------------------------------------------------------
 def extract_title_from_body(body):
     lines = body.splitlines()
@@ -42,7 +52,7 @@ def extract_title_from_body(body):
     return None, body
 
 # ------------------------------------------------------------
-# 4. Core Cleaning Logic for qavanin.ir Markdown
+# 5. Core Cleaning Logic for qavanin.ir Markdown
 # ------------------------------------------------------------
 def clean_qavanin_markdown(body):
     lines = body.splitlines()
@@ -61,7 +71,7 @@ def clean_qavanin_markdown(body):
             if d:
                 date_from_line = d
                 organ_from_line = o
-            continue  # remove this line from output
+            continue
         # Convert **كتاب ...** -> ## كتاب ...
         m = re.match(r'^\*\*(كتاب)\s+(.*?)\*\*$', line)
         if m:
@@ -94,12 +104,26 @@ def clean_qavanin_markdown(body):
     return '\n'.join(out), date_from_line, organ_from_line
 
 # ------------------------------------------------------------
-# 5. Main Conversion Function
+# 6. Helper: convert YAML frontmatter values to strings
+# ------------------------------------------------------------
+def stringify_frontmatter(fm):
+    for key in fm:
+        if isinstance(fm[key], date_type):
+            fm[key] = fm[key].isoformat()
+        elif fm[key] is None:
+            fm[key] = ''
+    return fm
+
+# ------------------------------------------------------------
+# 7. Main Conversion Function
 # ------------------------------------------------------------
 def convert_md_to_html(md_path, html_path, template_dir):
     print(f"Processing: {md_path}", file=sys.stderr)
     with open(md_path, 'r', encoding='utf-8') as f:
         text = f.read()
+
+    # Normalize Persian Y characters first (entire file)
+    text = normalize_persian(text)
 
     # Extract YAML frontmatter
     frontmatter = {}
@@ -108,6 +132,10 @@ def convert_md_to_html(md_path, html_path, template_dir):
     if fm_match:
         try:
             frontmatter = yaml.safe_load(fm_match.group(1))
+            if frontmatter is None:
+                frontmatter = {}
+            else:
+                frontmatter = stringify_frontmatter(frontmatter)
             body = body[fm_match.end():]
         except yaml.YAMLError as e:
             print(f"Warning: YAML frontmatter could not be parsed: {e}", file=sys.stderr)
@@ -126,6 +154,7 @@ def convert_md_to_html(md_path, html_path, template_dir):
 
     # Convert date to Persian digits for display
     if date != 'نامشخص' and date:
+        date = str(date)
         date = fix_date(date)
 
     # Convert markdown to HTML
