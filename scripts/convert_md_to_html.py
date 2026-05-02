@@ -16,7 +16,47 @@ def fix_date(text):
     return re.sub(r'(\d+)[ˏ\-/](\d+)[ˏ\-/](\d+)', repl, text)
 
 # ------------------------------------------------------------
-# heading patterns: (regex, markdown level)
+# Qavanin mode: convert **فصل...** to ## فصل... etc.
+def convert_bold_headings(text):
+    """Convert **فصل ...**, **اصل ...**, etc. to proper markdown headings."""
+    lines = text.splitlines()
+    new_lines = []
+    for line in lines:
+        # Match **فصل ...** or **باب ...** -> level 2 heading
+        match = re.match(r'^\*\*(فصل|باب)\s+(.*?)\*\*$', line)
+        if match:
+            new_lines.append(f"## {match.group(1)} {match.group(2)}")
+            continue
+        # Match **مبحث ...** -> level 3 heading
+        match = re.match(r'^\*\*(مبحث)\s+(.*?)\*\*$', line)
+        if match:
+            new_lines.append(f"### {match.group(1)} {match.group(2)}")
+            continue
+        # Match **ماده ...** -> level 3 heading
+        match = re.match(r'^\*\*(ماده)\s+(.*?)\*\*$', line)
+        if match:
+            new_lines.append(f"### {match.group(1)} {match.group(2)}")
+            continue
+        # Match **اصل ...** -> level 3 heading
+        match = re.match(r'^\*\*(اصل)\s+(.*?)\*\*$', line)
+        if match:
+            new_lines.append(f"### {match.group(1)} {match.group(2)}")
+            continue
+        # Match **تبصره ...** -> level 4 heading
+        match = re.match(r'^\*\*(تبصره)\s+(.*?)\*\*$', line)
+        if match:
+            new_lines.append(f"#### {match.group(1)} {match.group(2)}")
+            continue
+        # Match **مقدمه** -> level 2 heading
+        if line.strip() == '**مقدمه**':
+            new_lines.append("## مقدمه")
+            continue
+        # Otherwise keep the line as is
+        new_lines.append(line)
+    return '\n'.join(new_lines)
+
+# ------------------------------------------------------------
+# CSV mode: heading patterns for raw text with inline merging
 HEADINGS = [
     (r'^مقدمه\b',               '##'),
     (r'^باب\s+[۰-۹0-9]+',       '##'),
@@ -28,19 +68,8 @@ HEADINGS = [
     (r'^بند\s+[۰-۹0-9]+',       '####'),
 ]
 
-def convert_md_to_html(md_path, html_path, template_dir):
-    with open(md_path, 'r', encoding='utf-8') as f:
-        text = f.read()
-
-    # separate frontmatter and body
-    frontmatter = {}
-    body = text
-    fm_match = re.match(r'^---\s*\n(.*?)\n---\s*\n', body, re.DOTALL)
-    if fm_match:
-        frontmatter = yaml.safe_load(fm_match.group(1))
-        body = body[fm_match.end():]
-
-    # process line by line
+def process_csv_mode(body):
+    """Handle raw messy text from CSV (with inline headings)."""
     lines = body.splitlines()
     out_lines = []
     i = 0
@@ -49,8 +78,6 @@ def convert_md_to_html(md_path, html_path, template_dir):
         if not line:
             i += 1
             continue
-
-        # check if line starts with a heading
         heading_md = None
         heading_text = None
         for pat, md in HEADINGS:
@@ -58,9 +85,7 @@ def convert_md_to_html(md_path, html_path, template_dir):
                 heading_md = md
                 heading_text = line.strip()
                 break
-
         if heading_md:
-            # collect next non‑empty lines until next heading
             content = []
             j = i + 1
             while j < len(lines):
@@ -68,7 +93,6 @@ def convert_md_to_html(md_path, html_path, template_dir):
                 if not nxt:
                     j += 1
                     continue
-                # stop if next line is also a heading
                 is_next_heading = any(re.match(p, nxt) for p, _ in HEADINGS)
                 if is_next_heading:
                     break
@@ -81,17 +105,38 @@ def convert_md_to_html(md_path, html_path, template_dir):
             out_lines.append(f'{heading_md} {full}')
             i = j
         else:
-            # normal line – just fix dates
             out_lines.append(fix_date(line))
             i += 1
+    return '\n'.join(out_lines)
 
-    formatted_body = '\n'.join(out_lines)
+# ------------------------------------------------------------
+def convert_md_to_html(md_path, html_path, template_dir):
+    with open(md_path, 'r', encoding='utf-8') as f:
+        text = f.read()
 
-    # metadata for template
+    # Split frontmatter and body
+    frontmatter = {}
+    body = text
+    fm_match = re.match(r'^---\s*\n(.*?)\n---\s*\n', body, re.DOTALL)
+    if fm_match:
+        frontmatter = yaml.safe_load(fm_match.group(1))
+        body = body[fm_match.end():]
+
+    # Decide which processing mode to use
+    if '**فصل' in body or '**اصل' in body:
+        # Already clean markdown from qavanin.ir extractor
+        formatted_body = convert_bold_headings(body)
+        formatted_body = fix_date(formatted_body)
+    else:
+        # Raw CSV‑style text
+        formatted_body = process_csv_mode(body)
+
+    # Metadata
     title = frontmatter.get('title', os.path.basename(md_path).replace('.md', '').replace('-', ' '))
     date = frontmatter.get('date', 'نامشخص')
     organ = frontmatter.get('organ', 'نامشخص')
 
+    # Convert to HTML
     html_body = markdown.markdown(formatted_body, extensions=['extra', 'codehilite'])
 
     env = Environment(loader=FileSystemLoader(template_dir))
