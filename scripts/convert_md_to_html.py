@@ -14,108 +14,83 @@ def fix_date(text):
         return f"{y.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}/{mth.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}/{d.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}"
     return re.sub(r'(\d+)[ˏ\-/](\d+)[ˏ\-/](\d+)', repl, text)
 
-# ------------------------------------------------------------
-# Clean and convert bold headings from qavanin.ir style
-def convert_qavanin_markdown(body):
+def extract_date_organ_from_line(line):
+    """Parse line like '**Date:** مصوب 1314/08/08 مجلس شوراي ملي' -> (date, organ)"""
+    content = re.sub(r'^\*\*Date:\*\*\s*', '', line)
+    match = re.match(r'(مصوب\s+)?(\d+[ˏ\-/]\d+[ˏ\-/]\d+)\s+(.*)', content)
+    if match:
+        date_str = match.group(2)
+        organ = match.group(3).strip()
+        return date_str, organ
+    return None, None
+
+def extract_title_from_body(body):
+    """Extract first line that starts with '# ' and return (title, body_without_title)."""
+    lines = body.splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith('# '):
+            title = line[2:].strip()
+            # Remove that line from body
+            new_body = '\n'.join(lines[:i] + lines[i+1:])
+            return title, new_body
+    return None, body
+
+def clean_qavanin_markdown(body):
+    """
+    Cleans qavanin.ir extracted markdown:
+    - Removes **** and **Date:** lines (extracts date/organ).
+    - Converts **كتاب**, **باب**, **فصل** to ## headings.
+    - Converts plain 'مقدمه' to ## مقدمه.
+    - Leaves existing ### ماده headings intact.
+    """
     lines = body.splitlines()
     out = []
+    date_from_line = None
+    organ_from_line = None
     for line in lines:
         line = line.rstrip()
-        # Remove lines that are just **** (horizontal rule)
-        if re.match(r'^\*\*\*\*$', line):
+        if not line:
+            out.append('')
             continue
-        # Convert **فصل ...** to ## فصل ...
-        m = re.match(r'^\*\*(فصل)\s+(.*?)\*\*$', line)
+        if line.strip() == '****':
+            continue
+        if line.startswith('**Date:**'):
+            d, o = extract_date_organ_from_line(line)
+            if d:
+                date_from_line = d
+                organ_from_line = o
+            continue  # remove this line from output
+        # Convert **كتاب ...** -> ## كتاب ...
+        m = re.match(r'^\*\*(كتاب)\s+(.*?)\*\*$', line)
         if m:
             out.append(f"## {m.group(1)} {m.group(2)}")
             continue
-        # Convert **باب ...** to ## باب ...
+        # Convert **باب ...** -> ## باب ...
         m = re.match(r'^\*\*(باب)\s+(.*?)\*\*$', line)
         if m:
             out.append(f"## {m.group(1)} {m.group(2)}")
             continue
-        # Convert **مبحث ...** to ### مبحث ...
+        # Convert **فصل ...** -> ## فصل ...
+        m = re.match(r'^\*\*(فصل)\s+(.*?)\*\*$', line)
+        if m:
+            out.append(f"## {m.group(1)} {m.group(2)}")
+            continue
+        # Convert **مبحث ...** -> ### مبحث ...
         m = re.match(r'^\*\*(مبحث)\s+(.*?)\*\*$', line)
         if m:
             out.append(f"### {m.group(1)} {m.group(2)}")
             continue
-        # Convert **ماده ...** to ### ماده ...
-        m = re.match(r'^\*\*(ماده)\s+(.*?)\*\*$', line)
-        if m:
-            out.append(f"### {m.group(1)} {m.group(2)}")
+        # Convert plain 'مقدمه' to ## مقدمه
+        if line.strip() == 'مقدمه':
+            out.append('## مقدمه')
             continue
-        # Convert **اصل ...** to ### اصل ...
-        m = re.match(r'^\*\*(اصل)\s+(.*?)\*\*$', line)
-        if m:
-            out.append(f"### {m.group(1)} {m.group(2)}")
+        # Keep existing markdown headings (### ماده ...)
+        if line.startswith('#'):
+            out.append(line)
             continue
-        # Convert **تبصره ...** to #### تبصره ...
-        m = re.match(r'^\*\*(تبصره)\s+(.*?)\*\*$', line)
-        if m:
-            out.append(f"#### {m.group(1)} {m.group(2)}")
-            continue
-        # Convert **مقدمه** to ## مقدمه
-        if line.strip() == '**مقدمه**':
-            out.append("## مقدمه")
-            continue
-        # Keep other lines as they are
         out.append(line)
-    return '\n'.join(out)
+    return '\n'.join(out), date_from_line, organ_from_line
 
-# ------------------------------------------------------------
-# Fallback: CSV mode (raw text with inline headings)
-HEADINGS = [
-    (r'^مقدمه\b',               '##'),
-    (r'^باب\s+[۰-۹0-9]+',       '##'),
-    (r'^فصل\s+[۰-۹0-9]+',       '##'),
-    (r'^مبحث\s+[۰-۹0-9]+',      '###'),
-    (r'^ماده\s+[۰-۹0-9]+',      '###'),
-    (r'^تبصره\s+[۰-۹0-9]+',     '####'),
-    (r'^جزء\s+[۰-۹0-9]+',       '####'),
-    (r'^بند\s+[۰-۹0-9]+',       '####'),
-]
-
-def process_csv_mode(body):
-    lines = body.splitlines()
-    out = []
-    i = 0
-    while i < len(lines):
-        line = lines[i].rstrip()
-        if not line:
-            i += 1
-            continue
-        heading_md = None
-        heading_text = None
-        for pat, md in HEADINGS:
-            if re.match(pat, line):
-                heading_md = md
-                heading_text = line.strip()
-                break
-        if heading_md:
-            content = []
-            j = i + 1
-            while j < len(lines):
-                nxt = lines[j].rstrip()
-                if not nxt:
-                    j += 1
-                    continue
-                is_next_heading = any(re.match(p, nxt) for p, _ in HEADINGS)
-                if is_next_heading:
-                    break
-                content.append(nxt)
-                j += 1
-            full = heading_text
-            if content:
-                full += ' - ' + ' '.join(content)
-            full = fix_date(full)
-            out.append(f'{heading_md} {full}')
-            i = j
-        else:
-            out.append(fix_date(line))
-            i += 1
-    return '\n'.join(out)
-
-# ------------------------------------------------------------
 def convert_md_to_html(md_path, html_path, template_dir):
     with open(md_path, 'r', encoding='utf-8') as f:
         text = f.read()
@@ -128,22 +103,24 @@ def convert_md_to_html(md_path, html_path, template_dir):
         frontmatter = yaml.safe_load(fm_match.group(1))
         body = body[fm_match.end():]
 
-    # Auto-detect mode
-    if '**فصل' in body or '**اصل' in body:
-        print("[INFO] Qavanin mode detected – converting bold headings.", file=sys.stderr)
-        formatted_body = convert_qavanin_markdown(body)
-        formatted_body = fix_date(formatted_body)
-    else:
-        print("[INFO] CSV mode detected – processing raw text.", file=sys.stderr)
-        formatted_body = process_csv_mode(body)
+    # Clean body and extract date/organ from **Date:** line
+    cleaned_body, date_from_line, organ_from_line = clean_qavanin_markdown(body)
+    cleaned_body = fix_date(cleaned_body)
 
-    # Metadata
-    title = frontmatter.get('title', os.path.basename(md_path).replace('.md', '').replace('-', ' '))
-    date = frontmatter.get('date', 'نامشخص')
-    organ = frontmatter.get('organ', 'نامشخص')
+    # Extract title from cleaned body (first level-1 heading) and remove it
+    extracted_title, cleaned_body = extract_title_from_body(cleaned_body)
 
-    # Convert to HTML
-    html_body = markdown.markdown(formatted_body, extensions=['extra', 'codehilite'])
+    # Priority: frontmatter > extracted > filename
+    title = frontmatter.get('title') or extracted_title or os.path.basename(md_path).replace('.md', '').replace('-', ' ')
+    date = frontmatter.get('date') or date_from_line or 'نامشخص'
+    organ = frontmatter.get('organ') or organ_from_line or 'نامشخص'
+
+    # Convert date to Persian digits for display
+    if date != 'نامشخص' and date:
+        date = fix_date(date)
+
+    # Convert markdown to HTML
+    html_body = markdown.markdown(cleaned_body, extensions=['extra', 'codehilite'])
 
     env = Environment(loader=FileSystemLoader(template_dir))
     template = env.get_template('law_template.html')
@@ -153,7 +130,6 @@ def convert_md_to_html(md_path, html_path, template_dir):
         f.write(output)
 
 if __name__ == "__main__":
-    import sys
     parser = argparse.ArgumentParser()
     parser.add_argument('--md', required=True)
     parser.add_argument('--html', required=True)
