@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 import os
 import re
+import sys
 import yaml
 import markdown
 from jinja2 import Environment, FileSystemLoader
 import argparse
 
 # ------------------------------------------------------------
-# Date conversion: 14ˏ08ˏ1370 -> ۱۳۷۰/۰۸/۱۴
+# 1. Date Normalization
+# ------------------------------------------------------------
 def fix_date(text):
     def repl(m):
         d, mth, y = m.groups()
+        # swap day and year
         return f"{y.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}/{mth.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}/{d.translate(str.maketrans('0123456789','۰۱۲۳۴۵۶۷۸۹'))}"
     return re.sub(r'(\d+)[ˏ\-/](\d+)[ˏ\-/](\d+)', repl, text)
 
+# ------------------------------------------------------------
+# 2. Extract Date and Organ from qavanin.ir lines
+# ------------------------------------------------------------
 def extract_date_organ_from_line(line):
-    """Parse line like '**Date:** مصوب 1314/08/08 مجلس شوراي ملي' -> (date, organ)"""
     content = re.sub(r'^\*\*Date:\*\*\s*', '', line)
     match = re.match(r'(مصوب\s+)?(\d+[ˏ\-/]\d+[ˏ\-/]\d+)\s+(.*)', content)
     if match:
@@ -24,25 +29,22 @@ def extract_date_organ_from_line(line):
         return date_str, organ
     return None, None
 
+# ------------------------------------------------------------
+# 3. Extract Title from the First Heading
+# ------------------------------------------------------------
 def extract_title_from_body(body):
-    """Extract first line that starts with '# ' and return (title, body_without_title)."""
     lines = body.splitlines()
     for i, line in enumerate(lines):
         if line.startswith('# '):
             title = line[2:].strip()
-            # Remove that line from body
             new_body = '\n'.join(lines[:i] + lines[i+1:])
             return title, new_body
     return None, body
 
+# ------------------------------------------------------------
+# 4. Core Cleaning Logic for qavanin.ir Markdown
+# ------------------------------------------------------------
 def clean_qavanin_markdown(body):
-    """
-    Cleans qavanin.ir extracted markdown:
-    - Removes **** and **Date:** lines (extracts date/organ).
-    - Converts **كتاب**, **باب**, **فصل** to ## headings.
-    - Converts plain 'مقدمه' to ## مقدمه.
-    - Leaves existing ### ماده headings intact.
-    """
     lines = body.splitlines()
     out = []
     date_from_line = None
@@ -91,7 +93,11 @@ def clean_qavanin_markdown(body):
         out.append(line)
     return '\n'.join(out), date_from_line, organ_from_line
 
+# ------------------------------------------------------------
+# 5. Main Conversion Function
+# ------------------------------------------------------------
 def convert_md_to_html(md_path, html_path, template_dir):
+    print(f"Processing: {md_path}", file=sys.stderr)
     with open(md_path, 'r', encoding='utf-8') as f:
         text = f.read()
 
@@ -100,8 +106,11 @@ def convert_md_to_html(md_path, html_path, template_dir):
     body = text
     fm_match = re.match(r'^---\s*\n(.*?)\n---\s*\n', body, re.DOTALL)
     if fm_match:
-        frontmatter = yaml.safe_load(fm_match.group(1))
-        body = body[fm_match.end():]
+        try:
+            frontmatter = yaml.safe_load(fm_match.group(1))
+            body = body[fm_match.end():]
+        except yaml.YAMLError as e:
+            print(f"Warning: YAML frontmatter could not be parsed: {e}", file=sys.stderr)
 
     # Clean body and extract date/organ from **Date:** line
     cleaned_body, date_from_line, organ_from_line = clean_qavanin_markdown(body)
@@ -128,6 +137,7 @@ def convert_md_to_html(md_path, html_path, template_dir):
 
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(output)
+    print(f"Successfully created: {html_path}", file=sys.stderr)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
