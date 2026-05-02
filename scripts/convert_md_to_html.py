@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 import argparse
 
 # ----------------------------------------------------------------------
-# Law formatting functions (embedded)
+# Law formatting functions (enhanced)
 # ----------------------------------------------------------------------
 
 HEADING_PATTERNS = [
@@ -24,72 +24,107 @@ HEADING_PATTERNS = [
     (r'^(تبصره\s+\d+)', '####'),
 ]
 
-LIST_ITEM_SPLIT = re.compile(r'(?<=[)\.])\s+(?=[۰-۹0-9]+[\)\.])')
+# Match a list item number followed by a separator (e.g., "۱)" or "۱.")
+LIST_ITEM_MARKER = re.compile(r'^\s*[۰-۹0-9]+[\)\.]\s+')
 
-def is_heading(line: str) -> tuple[bool, str]:
-    line_stripped = line.strip()
-    for pattern, prefix in HEADING_PATTERNS:
-        if re.match(pattern, line_stripped):
-            return True, prefix
-    return False, None
+def split_heading_and_rest(line):
+    """
+    If line starts with a heading pattern, extract heading part (up to and including the number)
+    and the rest of the line (everything after the number & optional characters).
+    Returns (heading_line, rest_line). If not a heading, returns (None, line).
+    """
+    for pattern, _ in HEADING_PATTERNS:
+        match = re.match(pattern, line)
+        if match:
+            heading_end = match.end()
+            # Find where the heading part ends (usually after the number and any following dash/space)
+            # But keep the heading as the matched part.
+            heading = line[:heading_end].strip()
+            rest = line[heading_end:].strip()
+            # If rest is empty, return heading only
+            if rest:
+                return heading, rest
+            else:
+                return heading, None
+    return None, line
 
-def split_list_line(line: str) -> list[str]:
-    line = line.strip()
-    if not line:
-        return []
+def split_inline_list(line):
+    """
+    Split a line that contains multiple numbered list items like "۱) text ۲) text"
+    into separate lines, each with one list item.
+    Returns a list of lines (each with one list item).
+    """
     if '\n' in line:
         return [line]
-    parts = LIST_ITEM_SPLIT.split(line)
+    # Use a regex that splits BEFORE a new number+separator, but keep the number with its text.
+    # Pattern: look for a space that is followed by a number+separator, but not preceded by a number+separator? Actually simpler:
+    parts = re.split(r'(?<=[\)\.])\s+(?=[۰-۹0-9]+[\)\.])', line)
+    # Each part should start with a list marker. Clean and return.
     result = []
     for part in parts:
-        if re.match(r'^\s*[۰-۹0-9]+[\)\.]', part):
+        part = part.strip()
+        if part:
+            # Ensure space after marker
+            part = re.sub(r'([۰-۹0-9]+[\)\.])([^\s])', r'\1 \2', part)
             result.append(part)
-        elif result:
-            result[-1] += ' ' + part
-        else:
-            result.append(part)
-    cleaned = []
-    for item in result:
-        item = re.sub(r'([۰-۹0-9]+[\)\.])([^\s])', r'\1 \2', item)
-        cleaned.append(item.strip())
-    return cleaned
+    return result if len(result) > 1 else [line]  # Only split if there are multiple items
 
-def clean_line(line: str) -> str:
-    line = line.strip()
-    line = re.sub(r'([۰-۹0-9]+[\)\.])([^\s])', r'\1 \2', line)
-    line = re.sub(r'([\-\*•])([^\s])', r'\1 \2', line)
-    return line
+def process_text_block(block):
+    """
+    Process a block of text (may contain multiple lines) and return formatted lines.
+    Handles headings and list splitting recursively.
+    """
+    lines = block.splitlines()
+    output = []
+    for line in lines:
+        line = line.strip()
+        if not line:
+            output.append('')
+            continue
+        # Check if line contains a heading prefix
+        heading, rest = split_heading_and_rest(line)
+        if heading is not None:
+            # Add heading line with markdown prefix
+            for pattern, prefix in HEADING_PATTERNS:
+                if re.match(pattern, heading):
+                    output.append(f'{prefix} {heading}')
+                    break
+            # Process the rest (which may contain inline lists)
+            if rest:
+                # Split rest into list items if needed
+                items = split_inline_list(rest)
+                for item in items:
+                    output.append(item)
+        else:
+            # No heading – split into list items if needed, otherwise keep as is
+            items = split_inline_list(line)
+            for item in items:
+                output.append(item)
+    return output
 
 def format_law_text(content: str) -> str:
-    lines = content.splitlines()
-    output_lines = []
-    for line in lines:
-        line = line.rstrip()
-        if not line.strip():
-            output_lines.append('')
+    """Main entry point: format the entire law text."""
+    # Split into blocks separated by blank lines (to preserve structure)
+    blocks = re.split(r'\n\s*\n', content)
+    all_lines = []
+    for block in blocks:
+        if not block.strip():
             continue
-        split_items = split_list_line(line)
-        for item in split_items:
-            item = clean_line(item)
-            if not item:
-                continue
-            is_h, prefix = is_heading(item)
-            if is_h:
-                output_lines.append(f'{prefix} {item}')
-            else:
-                output_lines.append(item)
-    # Collapse multiple blank lines to at most two
-    final_lines = []
-    blank_count = 0
-    for line in output_lines:
-        if line.strip() == '':
-            blank_count += 1
-            if blank_count <= 2:
-                final_lines.append('')
+        formatted = process_text_block(block)
+        all_lines.extend(formatted)
+        all_lines.append('')  # Add blank line between blocks
+    # Remove excessive blank lines
+    result = []
+    last_empty = False
+    for line in all_lines:
+        if line == '':
+            if not last_empty:
+                result.append('')
+                last_empty = True
         else:
-            blank_count = 0
-            final_lines.append(line)
-    return '\n'.join(final_lines)
+            result.append(line)
+            last_empty = False
+    return '\n'.join(result).strip()
 
 # ----------------------------------------------------------------------
 # Original conversion functions (modified to format before processing)
@@ -109,30 +144,19 @@ def convert_md_to_html(md_path, html_path, template_dir):
     with open(md_path, 'r', encoding='utf-8') as f:
         raw_content = f.read()
     
-    # 1. Extract YAML frontmatter (if any)
     frontmatter, body = extract_frontmatter(raw_content)
     
-    # 2. Format the body (apply law formatting)
+    # Format the body (apply law formatting)
     formatted_body = format_law_text(body)
     
-    # 3. Reassemble with frontmatter (if present)
-    if frontmatter:
-        # Re-create YAML frontmatter block
-        yaml_str = yaml.dump(frontmatter, allow_unicode=True, default_flow_style=False)
-        formatted_content = f"---\n{yaml_str}---\n{formatted_body}"
-    else:
-        formatted_content = formatted_body
-    
-    # Extract metadata for the HTML template
+    # Extract metadata
     title = frontmatter.get('title', os.path.basename(md_path).replace('.md', '').replace('-', ' '))
     date = frontmatter.get('date', 'نامشخص')
     organ = frontmatter.get('organ', 'نامشخص')
     
-    # 4. Convert the **formatted** markdown body to HTML
-    #    (We use the formatted_body, not the reassembled content, because the frontmatter is for metadata only)
+    # Convert formatted markdown to HTML
     html_body = markdown.markdown(formatted_body, extensions=['extra', 'codehilite'])
     
-    # 5. Render with template
     env = Environment(loader=FileSystemLoader(template_dir))
     template = env.get_template('law_template.html')
     output = template.render(title=title, date=date, organ=organ, content=html_body)
